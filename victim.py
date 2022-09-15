@@ -29,5 +29,7 @@ while True:
         print("received quit command!")
         print("quitting...")
         break
+    if command.split(" ")[0] == WATCH:
+        print("received watch command: " + command)
 command_socket.close()
 listening_socket.close()
