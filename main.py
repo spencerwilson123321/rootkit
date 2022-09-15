@@ -32,6 +32,8 @@ while True:
             sock.sendall(QUIT.encode("utf-8"))
             print("Quitting...")
             break
+        elif msg.split(" ")[0] == WATCH:
+            sock.sendall(msg.encode("utf-8"))
         else:
             print("Unrecognized Command!")
     except KeyboardInterrupt:
