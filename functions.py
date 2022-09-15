@@ -1,4 +1,3 @@
-from constants import MENU_STRING
 
 def printMenu():
     print("Welcome to the rootkit terminal!")
@@ -6,9 +5,10 @@ def printMenu():
 
 def printHelp():
     print("Possible Commands:")
-    print("start < keylogger | tbd > \t Starts the keylogger.")
-    print("stop < keylogger | tbd > \t Stops the keylogger.")
-    print("transfer < keylogger | tbd > \t Transfers the keylogger to this host.")
-    print("help \t\t\t\t Displays this help screen.")
-    print("clear \t\t\t\t Clears the terminal screen.")
-    print("quit \t\t\t\t Disconnect and end the terminal session.")
+    print("start keylogger " + 3*"\t" + " Starts the keylogger.")
+    print("stop keylogger " + 4*"\t" + " Stops the keylogger.")
+    print("transfer keylogger " + 3*"\t" + " Transfers the keylogger to this host.")
+    print("watch < directory path | file path > \t Watches the given file or directory for changes.")
+    print("help " + 5*"\t" + " Displays this help screen.")
+    print("clear " + 5*"\t" + " Clears the terminal screen.")
+    print("quit " + 5*"\t" + " Disconnect and end the terminal session.")
