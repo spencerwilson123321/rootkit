@@ -10,7 +10,7 @@ EXIT = "exit"
 WATCH = "watch"
 START = "start"
 STOP = "stop"
-GET = "get"
+TRANSFER = "transfer"
 KEYLOGGER = "keylogger"
 LIST = "list"
 WGET = "wget"
@@ -25,10 +25,10 @@ def print_menu():
 
 def print_help():
     print("Possible Commands:")
-    print("help " + 4*"\t" + " Displays this help screen.")
-    print("clear " + 4*"\t" + " Clears the terminal screen.")
-    print("exit " + 4*"\t" + " End the terminal session.")
-    print("keylogger [stop | start | get]" + 1*"\t" + " Stop, start, or get keylogger on rootkit.")
-    print("watch [dirpath | filepath]" + 1*"\t" + " Watch the given directory or file for changes.")
-    print("list dirpath" + 3*"\t" + " Attempts to list the contents of the given 'dirpath'.")
-    print("wget url dirpath" + 2*"\t" + " Downloads the resource from 'url' to the given 'dirpath'.")
+    print("help " + 5*"\t" + " Displays this help screen.")
+    print("clear " + 5*"\t" + " Clears the terminal screen.")
+    print("exit " + 5*"\t" + " End the terminal session.")
+    print("keylogger [stop | start | transfer]" + 1*"\t" + " Stop, start, or get keylogger on rootkit.")
+    print("watch [dirpath | filepath]" + 2*"\t" + " Watch the given directory or file for changes.")
+    print("list dirpath" + 4*"\t" + " Attempts to list the contents of the given 'dirpath'.")
+    print("wget url dirpath" + 3*"\t" + " Downloads the resource from 'url' to the given 'dirpath'.")
