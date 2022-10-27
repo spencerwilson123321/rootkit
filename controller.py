@@ -23,7 +23,6 @@ from utils.validation import validate_ipv4_address, validate_nic_interface
 # Third Party Libraries
 from scapy.all import IP, sr1, UDP, send, sniff, Raw, DNS
 
-
 # Command Line Arguments
 PARSER = argparse.ArgumentParser("./main.py")
 PARSER.add_argument("controller_ip", help="The IPv4 address of the controller host")
@@ -37,7 +36,7 @@ if not validate_ipv4_address(ARGS.controller_ip):
     print(f"Invalid IPv4 Address: '{ARGS.controller_ip}'")
     exit(1)
 
-if not validate_ipv4_address(ARGS.backdoor_ip):
+if not validate_ipv4_address(ARGS.rootkit_ip):
     print(f"Invalid IPv4 Address: '{ARGS.rootkit_ip}'")
     exit(1)
 
