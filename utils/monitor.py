@@ -15,8 +15,8 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO,
                 format='%(asctime)s - %(message)s',
                 datefmt='%Y-%m-%d %H:%M:%S',
-                # filename="../logs/monitor.log"
-                filename = "/home/spencer/school/comp8505/rootkit/logs/monitor.log"
+                filename="../logs/monitor.log"
+                # filename = "/home/spencer/school/comp8505/rootkit/logs/monitor.log" # Debug
                 )
 
 
@@ -77,7 +77,9 @@ class FileSystemMonitor():
     
 
     def monitor(self, path: str):
-        # Check if path is invalid, directory, or file.
+        """
+            Check if path is invalid, directory, or file.
+        """
         code: int = self.__validate_path(path)
         if code == self.__INVALID:
             print(f"Path does not exist: {path}")
@@ -109,13 +111,14 @@ class FileSystemMonitor():
             return
 
 
-if __name__ == "__main__":
-    FILESYSTEM_MONITOR = FileSystemMonitor()
-    FILESYSTEM_MONITOR.monitor("/home/spencer/school/comp8505/rootkit/utils/")
-    try:
-        time.sleep(60)
-    except KeyboardInterrupt:
-        FILESYSTEM_MONITOR.shutdown()
-        exit(1)
-    FILESYSTEM_MONITOR.shutdown()
+# Example Usage
+# if __name__ == "__main__":
+#     FILESYSTEM_MONITOR = FileSystemMonitor()
+#     FILESYSTEM_MONITOR.monitor("/home/spencer/school/comp8505/rootkit/utils/")
+#     try:
+#         time.sleep(60)
+#     except KeyboardInterrupt:
+#         FILESYSTEM_MONITOR.shutdown()
+#         exit(1)
+#     FILESYSTEM_MONITOR.shutdown()
 
