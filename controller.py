@@ -148,6 +148,17 @@ if __name__ == "__main__":
                 send_udp(data)
                 receive_response()
                 continue
+            if argv[0] == KEYLOGGER:
+                if argv[1] == START:
+                    print("Keylogger start command")
+                if argv[1] == STOP:
+                    print("Keylogger stop command")
+                if argv[1] == GET:
+                    print("Keylogger get command")
+                continue
+            if argv[0] == WATCH:
+                print(f"watch {argv[1]}")
+                continue
         if argc == 3:
             if argv[0] == WGET:
                 url = argv[1]
