@@ -4,9 +4,36 @@
     using shared secrets. It utilizes the ChaCha20 Stream Cipher.
 """
 from os import urandom, system
+from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.ciphers import Cipher
 from cryptography.hazmat.primitives.ciphers.algorithms import ChaCha20
 from secrets import token_bytes
+
+class BlockEncryption:
+    """
+        The Block Encryption class is a simple to use all in one
+        block encryption class. It uses the Fernet block cipher
+        and provides functions to easily perform encryption and decryption.
+    """
+
+    def __init__(self):
+        self.__secret = None
+        self.__fernet = None
+
+    def read_key(self, path):
+        try:
+            with open(path, "rb") as f:
+                self.__secret = f.read()
+            self.__fernet = Fernet(self.__secret)
+            return True
+        except FileNotFoundError:
+            return False
+    
+    def encrypt(self, cleartext) -> bytes:
+        return self.__fernet.encrypt(cleartext)
+
+    def decrypt(self, ciphertext) -> bytes:
+        return self.__fernet.decrypt(ciphertext)
 
 
 class StreamEncryption:
@@ -84,3 +111,4 @@ class StreamEncryption:
             established secret key.
         """
         return self.__decryptor.update(ciphertext)
+

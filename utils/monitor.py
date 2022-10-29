@@ -43,7 +43,7 @@ class FileSystemMonitor():
     def __init__(self, path=None):
         self.__path = None
         self.__threads = [] # List of threads watching directories.
-    
+
 
     def shutdown(self):
         """
