@@ -11,6 +11,7 @@ class PortKnockMonitor():
     def sniff(self, filter: str, device: str):
         result = subprocess.run(["./sniffer", "enp2s0"], capture_output=True)
         print(result.stdout.decode("utf-8"))
+        print("testing git")
 
 if __name__ == "__main__":
     monitor = PortKnockMonitor()
