@@ -8,21 +8,16 @@ u_int16_t get_packet_type(const unsigned char* packet) {
     struct ether_header *eptr;  /* net/ethernet.h */
     /* lets start with the ether header... */
     eptr = (struct ether_header *) packet;
+    u_int16_t type = ntohs(eptr->ether_type);
     /* check to see if we have an ip packet */
-    if (ntohs(eptr->ether_type) == ETHERTYPE_IP) {
-        fprintf(stdout,"(IP)");
-    } else  if (ntohs (eptr->ether_type) == ETHERTYPE_ARP) {
-        fprintf(stdout,"(ARP)");
-    } else  if (ntohs (eptr->ether_type) == ETHERTYPE_REVARP) {
-        fprintf(stdout,"(RARP)");
-    } else  if (ntohs (eptr->ether_type) == ETHERTYPE_IPV6) {
-        fprintf(stdout,"(IPV6)");
+    if (type == ETHERTYPE_IP) {
+        fprintf(stdout,"(IP)\n");
+    } else  if (type == ETHERTYPE_IPV6) {
+        fprintf(stdout,"(IPV6)\n");
     } else {
         fprintf(stdout,"(?)\n");
-        exit(1);
     }
-    fprintf(stdout,"\n");
-    return eptr->ether_type;
+    return type;
 }
 
 /* 
@@ -32,19 +27,16 @@ u_int16_t get_packet_type(const unsigned char* packet) {
 int main(int argc, char** argv) {
     // DATA
     char errbuff[1024];
-    char *filter = "port 443";
-    pcap_t *handle;
-    struct bpf_program fp;
-    bpf_u_int32 mask;
-    bpf_u_int32 ip;
-    struct pcap_pkthdr header;
     char *dev;
-    struct ether_header eth_header;
+    char *filter;
 
     // User passes NIC device name as argument.
     dev = argv[1];
+    filter = argv[2];
 
     // Get network IP and MASK.
+    bpf_u_int32 mask;
+    bpf_u_int32 ip;
     if (pcap_lookupnet(dev, &ip, &mask, errbuff) == -1) {
         fprintf(stderr, "Can't get netmask for device: %s", dev);
         ip = 0;
@@ -52,13 +44,14 @@ int main(int argc, char** argv) {
     }
     
     // Open device for sniffing.
-    handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuff);
+    pcap_t *handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuff);
     if (handle == NULL) {
         fprintf(stderr, "Device not found: %s", dev);
         exit(EXIT_FAILURE);
     };
 
     // Compile filter.
+    struct bpf_program fp;
     if (pcap_compile(handle, &fp, filter, 0, ip) == -1) {
         fprintf(stderr, "Filter compilation failed.");
         exit(EXIT_FAILURE);
@@ -73,11 +66,9 @@ int main(int argc, char** argv) {
     /* 
         Now we perform the actual sniffing of packets.
     */
-
-    // Read a single packet.
+    struct pcap_pkthdr header;
     const unsigned char *packet = pcap_next(handle, &header);
-    u_int16_t type = get_packet_type(packet);
-    // Close the sniffing session.
+    get_packet_type(packet);
     pcap_close(handle);
     return 0;
 }
