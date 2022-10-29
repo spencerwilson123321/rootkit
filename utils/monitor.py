@@ -53,7 +53,7 @@ class FileSystemMonitor():
             thread.stop()
         for thread in self.__threads:
             thread.join()
-    
+
 
     def __validate_path(self, path) -> int:
         """
@@ -66,7 +66,7 @@ class FileSystemMonitor():
         elif os.path.isfile(path):
             return self.__FILE
         return self.__INVALID
-    
+
 
     def __get_parent_directory(self, path) -> str:
         """
@@ -74,7 +74,7 @@ class FileSystemMonitor():
         """
         p = Path(path)
         return p.parent.absolute()
-    
+
 
     def monitor(self, path: str):
         """
