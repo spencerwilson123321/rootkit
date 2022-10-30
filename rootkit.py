@@ -223,11 +223,15 @@ def forge_dns_query_block(data: str, indentification: int):
     """
     hostname = get_random_hostname()
     encrypted_data = b""
-    if len(data) > 255:
-        print("ERROR: Can't fit more than 256 bytes in TXT record!")
-        print("Truncating data...")
-        truncated_data = data[0:255]
-        encrypted_data = BLOCK_ENCRYPTION_HANDLER.encrypt(truncated_data.encode("utf-8"))
+    if len(data) > 120:
+        total_bytes = len(data)
+        bytes_sent = 0
+        # If too much data to send in one packet,
+        # need to send it in multiple packets.
+        while bytes_sent < total_bytes:
+            truncated_data = data[bytes_sent:bytes_sent+120]
+            bytes_sent += len(truncated_data)
+            encrypted_data = BLOCK_ENCRYPTION_HANDLER.encrypt(truncated_data.encode("utf-8"))
     else:
         encrypted_data = BLOCK_ENCRYPTION_HANDLER.encrypt(data.encode("utf-8"))
     # Forge the DNS packet with data in the text record.

