@@ -82,44 +82,44 @@ BLOCK_ENCRYPTION_HANDLER.read_key("data/fernet.key")
 
 # Defining the default event handling code for files.
 def on_created(event):
-    forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
+    forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}\n", MONITOR_IDENTIFICATION)
 
 def on_deleted(event):
-    forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
+    forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}\n", MONITOR_IDENTIFICATION)
 
 def on_modified(event):
-    forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
+    forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}\n", MONITOR_IDENTIFICATION)
 
 def on_moved(event):
-    forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
+    forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}\n", MONITOR_IDENTIFICATION)
 
 # This is used for directories.
 def on_any_event_directories(event):
     if event.is_directory:
         if event.event_type == "created":
-            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Created: {event.src_path}", MONITOR_IDENTIFICATION)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Created: {event.src_path}\n", MONITOR_IDENTIFICATION)
             # send_dns_query(query)
         if event.event_type == "deleted":
-            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Deleted: {event.src_path}\n", MONITOR_IDENTIFICATION)
             # send_dns_query(query)
         if event.event_type == "modified":
-            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Modified: {event.src_path}", MONITOR_IDENTIFICATION)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Modified: {event.src_path}\n", MONITOR_IDENTIFICATION)
             # send_dns_query(query)
         if event.event_type == "moved":
-            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Moved: {event.src_path} --> {event.dest_path}\n", MONITOR_IDENTIFICATION)
             # send_dns_query(query)
     else:
         if event.event_type == "created":
-            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}\n", MONITOR_IDENTIFICATION)
             # send_dns_query(query)
         if event.event_type == "deleted":
-            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}\n", MONITOR_IDENTIFICATION)
             # send_dns_query(query)
         if event.event_type == "modified":
-            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}\n", MONITOR_IDENTIFICATION)
             # send_dns_query(query)
         if event.event_type == "moved":
-            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}\n", MONITOR_IDENTIFICATION)
             # send_dns_query(query)
 
 class FileSystemMonitor():

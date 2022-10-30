@@ -30,5 +30,5 @@ def print_help():
     print("exit " + 5*"\t" + " End the terminal session.")
     print("keylogger [stop | start | transfer]" + 1*"\t" + " Stop, start, or get keylogger on rootkit.")
     print("watch [dirpath | filepath]" + 2*"\t" + " Watch the given directory or file for changes.")
-    print("list dirpath" + 4*"\t" + " Attempts to list the contents of the given 'dirpath'.")
-    print("wget url dirpath" + 3*"\t" + " Downloads the resource from 'url' to the given 'dirpath'.")
+    # print("list dirpath" + 4*"\t" + " Attempts to list the contents of the given 'dirpath'.")
+    # print("wget url dirpath" + 3*"\t" + " Downloads the resource from 'url' to the given 'dirpath'.")

