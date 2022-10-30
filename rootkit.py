@@ -81,21 +81,21 @@ BLOCK_ENCRYPTION_HANDLER.read_key("data/fernet.key")
 
 
 # Defining the default event handling code for files.
-def on_created(event):
-    query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
-    send_dns_query(query)
+# def on_created(event):
+#     query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
+#     send_dns_query(query)
 
-def on_deleted(event):
-    query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
-    send_dns_query(query)
+# def on_deleted(event):
+#     query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
+#     send_dns_query(query)
 
-def on_modified(event):
-    query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
-    send_dns_query(query)
+# def on_modified(event):
+#     query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
+#     send_dns_query(query)
 
-def on_moved(event):
-    query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
-    send_dns_query(query)
+# def on_moved(event):
+#     query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
+#     send_dns_query(query)
 
 # This is used for directories.
 def on_any_event(event):
@@ -180,17 +180,20 @@ class FileSystemMonitor():
         if code == self.__FILE:
             print(f"File: {path}")
             # Defining event handler which will only emit file specific events.
-            event_handler = PatternMatchingEventHandler(patterns = [os.path.basename(path)],
-                                                        ignore_directories=True,
-                                                        ignore_patterns=None,
-                                                        case_sensitive=True)
-            event_handler.on_created = on_created
-            event_handler.on_deleted = on_deleted
-            event_handler.on_modified = on_modified
-            event_handler.on_moved = on_moved
-            parent_dir = self.__get_parent_directory(path)
+            # event_handler = PatternMatchingEventHandler(patterns = [os.path.basename(path)],
+            #                                             ignore_directories=True,
+            #                                             ignore_patterns=None,
+            #                                             case_sensitive=True)
+            # event_handler.on_created = on_created
+            # event_handler.on_deleted = on_deleted
+            # event_handler.on_modified = on_modified
+            # event_handler.on_moved = on_moved
+            # parent_dir = self.__get_parent_directory(path)
+            event_handler = FileSystemEventHandler()
+            event_handler.on_any_event = on_any_event
             observer = Observer()
-            observer.schedule(event_handler, parent_dir, recursive=False)
+            # observer.schedule(event_handler, parent_dir, recursive=False)
+            observer.schedule(event_handler, path, recursive=False)
             observer.start()
             self.__threads.append(observer)
             return
