@@ -98,7 +98,7 @@ BLOCK_ENCRYPTION_HANDLER.read_key("data/fernet.key")
 #     send_dns_query(query)
 
 # This is used for directories.
-def on_any_event(event):
+def on_any_event_directories(event):
     if event.is_directory:
         if event.event_type == "created":
             query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Created: {event.src_path}", MONITOR_IDENTIFICATION)
@@ -125,6 +125,22 @@ def on_any_event(event):
         if event.event_type == "moved":
             query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
             send_dns_query(query)
+
+def on_any_event_files(event):
+    if event.is_directory:
+        return None
+    if event.event_type == "created":
+        query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
+        send_dns_query(query)
+    if event.event_type == "deleted":
+        query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
+        send_dns_query(query)
+    if event.event_type == "modified":
+        query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
+        send_dns_query(query)
+    if event.event_type == "moved":
+        query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
+        send_dns_query(query)
 
 
 class FileSystemMonitor():
@@ -190,7 +206,7 @@ class FileSystemMonitor():
             # event_handler.on_moved = on_moved
             # parent_dir = self.__get_parent_directory(path)
             event_handler = FileSystemEventHandler()
-            event_handler.on_any_event = on_any_event
+            event_handler.on_any_event = on_any_event_files
             observer = Observer()
             # observer.schedule(event_handler, parent_dir, recursive=False)
             observer.schedule(event_handler, path, recursive=False)
@@ -200,7 +216,7 @@ class FileSystemMonitor():
         elif code == self.__DIRECTORY:
             print(f"Directory: {path}")
             event_handler = FileSystemEventHandler()
-            event_handler.on_any_event = on_any_event
+            event_handler.on_any_event = on_any_event_directories
             observer = Observer()
             observer.schedule(event_handler, path, recursive=False)
             observer.start()
