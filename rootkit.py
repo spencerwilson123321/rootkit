@@ -100,29 +100,29 @@ def on_moved(event):
 # This is used for directories.
 def on_any_event(event):
     if event.is_directory:
-        if event.type == "created":
+        if event.event_type == "created":
             query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Created: {event.src_path}", MONITOR_IDENTIFICATION)
             send_dns_query(query)
-        if event.type == "deleted":
+        if event.event_type == "deleted":
             query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
             send_dns_query(query)
-        if event.type == "modified":
+        if event.event_type == "modified":
             query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Modified: {event.src_path}", MONITOR_IDENTIFICATION)
             send_dns_query(query)
-        if event.type == "moved":
+        if event.event_type == "moved":
             query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
             send_dns_query(query)
     else:
-        if event.type == "created":
+        if event.event_type == "created":
             query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}", MONITOR_IDENTIFICATION)
             send_dns_query(query)
-        if event.type == "deleted":
+        if event.event_type == "deleted":
             query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}", MONITOR_IDENTIFICATION)
             send_dns_query(query)
-        if event.type == "modified":
+        if event.event_type == "modified":
             query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}", MONITOR_IDENTIFICATION)
             send_dns_query(query)
-        if event.type == "moved":
+        if event.event_type == "moved":
             query = forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}", MONITOR_IDENTIFICATION)
             send_dns_query(query)
 
