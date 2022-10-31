@@ -160,17 +160,19 @@ def receive_command_output():
         else:
             encrypted = COMMAND_OUTPUT_QUEUE.get()
             decrypted = BLOCK_ENCRYPTION_HANDLER.decrypt(encrypted)
+            bytes_received += len(decrypted)
+            decrypted = decrypted.decode("utf-8")
             attempts = 0
             if "NUM_BYTES:" in decrypted:
                 parts = decrypted.split(" ")
                 parts = parts[0].split(":")
                 bytes_expected = int(parts[1])
-            bytes_received += len(decrypted)
-            result += decryped
+                decrypted = decrypted.replace(f"NUM_BYTES:{str(bytes_expected)} ", "")
+            command_output += decrypted
     if attempts == 3:
         print("Timed out waiting for response...")
     else:
-        print(result)
+        print(command_output)
 
 
 def arg_list_to_string(args: list):
