@@ -1,7 +1,7 @@
 from sys import stderr
 from threading import Thread, Lock
 import keyboard
-
+import time
 
 # Translation Table
 TRANSLATION_TABLE = {
