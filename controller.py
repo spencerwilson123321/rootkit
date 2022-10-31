@@ -151,7 +151,7 @@ def arg_list_to_string(args: list):
     for arg in args:
         result += arg
         result += " "
-    result.strip()
+    result = result.strip()
     return result
 
 
