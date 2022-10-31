@@ -14,6 +14,7 @@ TRANSFER = "transfer"
 KEYLOGGER = "keylogger"
 LIST = "list"
 WGET = "wget"
+EXECUTE = "execute"
 
 def clear_screen():
     system("clear")
