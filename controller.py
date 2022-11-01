@@ -196,8 +196,8 @@ def receive_file_transfer():
             attempts = 0
             if b'NUM_BYTES:' in decrypted or b'FILENAME:' in decrypted:
                 parts = decrypted.split(b' ')
-                filename = parts[0].split(b':')[1].encode()
-                bytes_expected = int(parts[1].split(b':')[1].encode("utf-8"))
+                filename = parts[0].split(b':')[1].decode("utf-8")
+                bytes_expected = int(parts[1].split(b':')[1].decode("utf-8"))
                 continue
             file_bytes += decrypted
     if attempts == 3:
