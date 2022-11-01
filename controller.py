@@ -210,7 +210,7 @@ def receive_file_transfer():
                 filename = increment_version(filename)
             else:
                 new_filename_found = True
-                with open(f"downloads/{filename}") as f:
+                with open(f"downloads/{filename}", "wb") as f:
                     f.write(file_bytes)
                 print("File saved successfully.")
 
@@ -237,7 +237,6 @@ def increment_version(filename):
         new_filename = filename_no_extension.replace(f"-{version}", f"-{version+1}")
     else:
         new_filename = filename_no_extension + f"-{version+1}"
-    print(new_filename)
     return new_filename + extension
 
 
