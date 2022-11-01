@@ -12,8 +12,9 @@ filterwarnings("ignore")
 import argparse
 from multiprocessing import Process, SimpleQueue
 from ipaddress import ip_address, IPv6Address
-from sys import exit, maxsize
+from sys import exit, maxsize, stderr
 from time import sleep
+import os
 
 # Custom Modules
 from utils.shell import *
@@ -22,6 +23,11 @@ from utils.validation import validate_ipv4_address, validate_nic_interface
 
 # Third Party Libraries
 from scapy.all import IP, sr1, UDP, send, sniff, Raw, DNS, conf
+
+# Check if root privileges
+if os.geteuid() != 0:
+    print("ERROR: Root privileges are required to run this program!", file=stderr)
+    exit(1)
 
 # Command Line Arguments
 PARSER = argparse.ArgumentParser("./main.py")
