@@ -1,13 +1,23 @@
 """
     This module contains functions for validating command line arguments.
 """
+
+
 from ipaddress import ip_address, IPv6Address
 from psutil import net_if_addrs
 
+
 def validate_ipv4_address(address: str) -> bool:
     """
-        Returns True if the given address is a valid IPv4 address.
-        Else False.
+        Validates an IPv4 address.
+
+        Parameters
+        ----------
+        address: str - The IPv4 address to validate.
+
+        Returns
+        -------
+        bool - True if valid, False if invalid.        
     """
     try:
         ip = ip_address(address)
@@ -17,10 +27,22 @@ def validate_ipv4_address(address: str) -> bool:
     except:
         return False
 
+
 def validate_nic_interface(interface: str) -> bool:
     """
-        Returns True if the given address is a valid network interface.
-        Else False.
+        Validates an interface name.
+
+        Checks if the given network interface exists by 
+        comparing it to the network interfaces available on 
+        the system.
+
+        Parameters
+        ----------
+        interface: str - The network interface name to validate.
+
+        Returns
+        -------
+        bool - True if valid, False if invalid. 
     """
     addresses = net_if_addrs()
     if interface in addresses.keys():

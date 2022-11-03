@@ -1,9 +1,13 @@
 """
-    This module contains code for using the shell interpreter which is used in the main.py file.
+    This module contains functions for displaying menus, clearing 
+    the screen, and contains values which are useful for parsing commands.
 """
 from os import system
 
-# Useful string constants
+
+"""
+    Useful string constants used for parsing commands in the shell prompt.
+"""
 HELP = "help"
 CLEAR = "clear"
 EXIT = "exit"
@@ -17,15 +21,57 @@ WGET = "wget"
 EXECUTE = "execute"
 STEAL = "steal"
 
-def clear_screen():
+
+def clear_screen() -> None:
+    """
+        Clears the terminal screen.
+
+        This function will only work on Linux systems.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+    """
     system("clear")
 
-def print_menu():
+
+def print_welcome() -> None:
+    """
+        Prints the shell welcome message.
+
+        Clears the terminal screen and then prints the shell welcome message.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+    """
     clear_screen()
     print("Welcome to the Rootkit Command Shell!")
     print("Enter 'help' for a list of commands")
 
-def print_help():
+
+def print_help() -> None:
+    """
+        Prints the shell help message.
+
+        Lists all of the possible shell commands and their usage.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+    """
     print("Possible Commands:")
     print("help " + 5*"\t" + " Displays this help screen.")
     print("clear " + 5*"\t" + " Clears the terminal screen.")
