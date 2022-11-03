@@ -10,10 +10,6 @@ import time
 
 
 TRANSLATION_TABLE = {
-    """
-        A translation table used for translating certain keyboard events
-        into a different format.
-    """
         "space":" ",
         "ctrl":"'CTRL'",
         "shift":"'SHIFT",
