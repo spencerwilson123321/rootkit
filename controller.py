@@ -198,14 +198,14 @@ def receive_file_transfer():
         else:
             encrypted = FILE_DATA_QUEUE.get()
             decrypted = BLOCK_ENCRYPTION_HANDLER.decrypt(encrypted)
-            bytes_received += len(decrypted)
-            print(f"Bytes Received: {bytes_received}")
             attempts = 0
             if b'NUM_BYTES:' in decrypted or b'FILENAME:' in decrypted:
                 parts = decrypted.split(b' ')
                 filename = parts[0].split(b':')[1].decode("utf-8")
                 bytes_expected = int(parts[1].split(b':')[1].decode("utf-8"))
                 continue
+            bytes_received += len(decrypted)
+            print(f"Bytes Received: {bytes_received}")
             file_bytes += decrypted
     if attempts == 3:
         print("Timed out waiting for response...")
