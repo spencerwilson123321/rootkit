@@ -14,8 +14,7 @@ TRANSLATION_TABLE = {
         "ctrl":"'CTRL'",
         "tab":"\t",
         "enter":"\n",
-        "alt":"'ALT'",
-        "backspace":"\b"
+        "alt":"'ALT'"
 }
 
 
