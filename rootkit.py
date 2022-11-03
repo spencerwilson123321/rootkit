@@ -125,11 +125,13 @@ def on_any_event_directories(event):
         if event.event_type == "moved":
             forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}\n", MONITOR_IDENTIFICATION)
 
+
 class FileSystemMonitor():
 
     __FILE = 1
     __DIRECTORY = 2
     __INVALID = 3
+
 
     def __init__(self, path=None):
         self.__path = None

