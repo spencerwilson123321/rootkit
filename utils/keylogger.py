@@ -77,6 +77,7 @@ class Keylogger:
         It is therefore only compatible with Linux.
     """
 
+
     def __init__(self):
         """
             Constructor method for the Keylogger class.

