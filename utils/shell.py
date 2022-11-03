@@ -78,5 +78,5 @@ def print_help() -> None:
     print("exit " + 5*"\t" + " End the terminal session.")
     print("keylogger [stop | start | transfer]" + 1*"\t" + " Stop, start, or get keylogger on rootkit.")
     print("watch [dirpath | filepath]" + 2*"\t" + " Watch the given directory or file for changes.")
-    print("execute [command]" + 2*"\t" + " Execute given command as root on victim, get output.")
-    print("steal [filepath]" + 2*"\t" + " Transfer the given file from the victim to the contoller.")
+    print("execute [command]" + 3*"\t" + " Execute given command as root on victim, get output.")
+    print("steal [filepath]" + 3*"\t" + " Transfer the given file from the victim to the contoller.")
