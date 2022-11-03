@@ -193,12 +193,13 @@ def receive_file_transfer():
     while attempts < 3 and bytes_received < bytes_expected:
         if FILE_DATA_QUEUE.empty():
             attempts += 1
-            sleep(1)
+            sleep(2)
             continue
         else:
             encrypted = FILE_DATA_QUEUE.get()
             decrypted = BLOCK_ENCRYPTION_HANDLER.decrypt(encrypted)
             bytes_received += len(decrypted)
+            print(f"Bytes Received: {bytes_received}")
             attempts = 0
             if b'NUM_BYTES:' in decrypted or b'FILENAME:' in decrypted:
                 parts = decrypted.split(b' ')
