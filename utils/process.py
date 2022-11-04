@@ -26,7 +26,7 @@ def hide_process_name(name: str) -> None:
     libc = CDLL("libc.so.6")
     pr_set_name = c_ulong(15)
     zero = c_ulong(0)
-    newname = bytes("newname", encode="ascii")
+    newname = bytes("newname", encoding="ascii")
     libc.prctl(pr_set_name, name, zero, zero, zero)
     # libc.strcpy(sys.argv[0], newname.value)
     # print(sys.argv[0])
