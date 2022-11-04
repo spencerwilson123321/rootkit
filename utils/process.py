@@ -25,4 +25,4 @@ def hide_process_name(name: str) -> None:
     cdll.LoadLibrary("libc.so.6")
     libc = CDLL("libc.so.6")
     newname = create_string_buffer(b"newname")
-    libc.strcrpy(sys.argv[0], newname.value)
+    libc.strcpy(sys.argv[0], newname.value)
