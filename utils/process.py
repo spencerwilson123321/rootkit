@@ -24,5 +24,5 @@ def hide_process_name(name: str) -> None:
     # Get the PID of the process.
     cdll.LoadLibrary("libc.so.6")
     libc = CDLL("libc.so.6")
-    newname = create_string_buffer("newname\0")
-    libc.strcrpy(sys.argv[0], newname)
+    newname = create_string_buffer(b"newname")
+    libc.strcrpy(sys.argv[0], newname.value)
