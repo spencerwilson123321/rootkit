@@ -4,6 +4,8 @@
 """
 
 from setproctitle import setproctitle
+import os
+import sys
 
 def hide_process_name(name: str) -> None:
     """
@@ -17,12 +19,7 @@ def hide_process_name(name: str) -> None:
         -------
         None
     """
-    setproctitle(name)
-
-def set_proc_name(newname):
-    from ctypes import cdll, byref, create_string_buffer
-    libc = cdll.LoadLibrary('libc.so.6')
-    buff = create_string_buffer(len(newname)+1)
-    buff.value = newname
-    libc.prctl(15, byref(buff), 0, 0, 0)
-
+    # setproctitle(name)
+    # Get the PID of the process.
+    pid = str(os.getpid())
+    sys.argv[0] = "testing"
