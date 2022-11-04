@@ -6,6 +6,7 @@
 from setproctitle import setproctitle
 import os
 import sys
+from ctypes import cdll, create_string_buffer
 
 def hide_process_name(name: str) -> None:
     """
@@ -21,5 +22,6 @@ def hide_process_name(name: str) -> None:
     """
     # setproctitle(name)
     # Get the PID of the process.
-    pid = str(os.getpid())
-    sys.argv[0] = "testing"
+    clib = cdll.msvcrt
+    newname = create_string_buffer("newname\0")
+    clib.strcrpy(sys.argv[0], newname)
