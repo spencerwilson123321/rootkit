@@ -88,6 +88,10 @@ def subprocess_packet_handler(pkt):
     """
     
     """
+    try:
+        pkt[UDP] # If the packet doesn't contain a UDP layer, ignore.
+    except IndexError:
+        return None
     if pkt[UDP].sport != 53 or pkt[UDP].dport != 53:
         return None
     encrypted_message = pkt[UDP].ar.rdata[0]
