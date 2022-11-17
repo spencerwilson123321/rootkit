@@ -210,6 +210,8 @@ def receive_file_transfer():
     if attempts == 3:
         print("Timed out waiting for response...")
     else:
+        if not os.path.exists("downloads"):
+            os.mkdir("downloads")
         # Save the file.
         new_filename_found = False
         while not new_filename_found:
